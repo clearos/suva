@@ -1,0 +1,38 @@
+#!/sbin/runscript
+
+opts="${opts} reload"
+
+depend() {
+	need net.lo
+	use logger dns
+}
+
+checkconfig() {
+	test -f /etc/suva/suvad-client.conf || return 1
+	return 0
+}
+
+start() {
+	checkconfig || return 1
+	ebegin "Starting suvad-client"
+	start-stop-daemon --start --quiet \
+		--pidfile /var/run/suvad/suvad-client.pid \
+		--chuid ${SUVA_USER} \
+		--startas /usr/sbin/suvad-client -- -c ${SUVA_CONF}
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping suvad-client"
+	start-stop-daemon --stop --quiet \
+		--pidfile /var/run/suvad/suvad-client.pid
+	eend $?
+}
+
+reload() {
+	ebegin "Reloading suvad-client configuration"
+	kill -HUP $(cat /var/run/suvad/suvad-client.pid)
+	eend $?
+}
+
+# vi: ts=4 syntax=sh

@@ -1,0 +1,21 @@
+#ifndef RESOURCES_H
+#define RESOURCES_H
+
+#define VER_FILEVERSION             1,0,0,0
+#define VER_FILEVERSION_STR         "1.0.0.0\0"
+
+#define VER_PRODUCTVERSION          3,0,0,0
+#define VER_PRODUCTVERSION_STR      "@PACKAGE_VERSION@\0"
+
+#define VER_COMPANYNAME_STR         "ClearFoundation"
+#define VER_FILEDESCRIPTION_STR     "Suva Secure Services"
+#define VER_INTERNALNAME_STR        "Suva"
+#define VER_LEGALCOPYRIGHT_STR      "Copyright 2010 ClearFoundation"
+#define VER_LEGALTRADEMARKS1_STR    "All Rights Reserved"
+#define VER_LEGALTRADEMARKS2_STR    VER_LEGALTRADEMARKS1_STR
+#define VER_ORIGINALFILENAME_STR    "suvad.exe"
+#define VER_PRODUCTNAME_STR         "Suva"
+
+#define VER_COMPANYDOMAIN_STR       "@PACKAGE_URL@"
+
+#endif // RESOURCES_H

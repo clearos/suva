@@ -1,0 +1,104 @@
+#!/bin/bash
+#
+# suvad          Start/Stop the Suva services daemon.
+#
+# chkconfig: 2345 90 60
+# description: Suva is a secure RPC services client/server.
+# processname: suvad
+# config: /etc/suvad.conf
+
+# Source function library.
+. /etc/init.d/functions
+
+prog="suvad"
+RETVAL=0
+SUVAD_PID="/var/run/suvad/suvad.pid"
+SUVAD_CONF="/etc/suvad.conf"
+
+# See how we were called.
+start() {
+	match=$(egrep '^<svconf' $SUVAD_CONF)
+	if [ -z "$match" ]; then
+		echo -n $"Upgrading configuration: "
+		/usr/sbin/$prog -c $SUVAD_CONF -o $SUVAD_CONF >/dev/null 2>&1
+		if [ $? -ne 0 ]; then
+			failure
+			echo
+			exit 1
+		else
+			success
+		fi
+		echo
+	fi
+	match=$(egrep '^[[:space:]]*<hostkey>[0]{32}</hostkey>$' $SUVAD_CONF)
+	if [ ! -z "$match" ]; then
+		echo -n $"Generating new hostkey: "
+		mkhost.sh $SUVAD_CONF >/dev/null 2>&1
+		if [ $? -ne 0 ]; then
+			failure
+			echo
+			exit 1
+		else
+			success
+		fi
+		echo
+	fi
+	echo -n $"Starting $prog: "
+	daemon --user suva /usr/sbin/$prog -c $SUVAD_CONF
+	RETVAL=$?
+	echo
+	if [ $RETVAL -eq 0 ]; then
+		[ -n "$SUVAD_PID" ] && ln -s $SUVAD_PID /var/run/suvad.pid
+		touch /var/lock/subsys/suvad
+	fi
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Stopping $prog: "
+	killproc suvad
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && rm -f /var/run/suvad/suvad.pid /var/run/suvad.pid /var/lock/subsys/suvad
+	return $RETVAL
+}	
+
+restart() {
+  	stop
+	start
+}	
+
+reload() {
+	echo -n $"Reloading $prog configuration: "
+	killproc suvad -HUP
+	retval=$?
+	echo
+	return $RETVAL
+}	
+
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart)
+  	restart
+	;;
+  reload)
+  	reload
+	;;
+  status)
+	status /usr/sbin/$prog
+	;;
+  condrestart)
+  	[ -f /var/lock/subsys/suvad ] && restart || :
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|reload|restart|condrestart}"
+	exit 1
+esac
+
+exit $?
+# vi: ts=4
