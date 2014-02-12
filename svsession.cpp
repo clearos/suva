@@ -666,8 +666,6 @@ void svSession::VpnConnect(void)
 			}
 
 			Authenticate();
-		} catch (svExSocketTimeout &e) {
-			skt_stl->UpdateLastActive();
 		} catch (runtime_error &e) {
 			svError("%s: %s: %s:%d: %s",
 				name.c_str(), org.c_str(),
