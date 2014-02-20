@@ -8,6 +8,7 @@
 /config.guess
 /config.h
 /config.h.in
+/config.h.in~
 /config.log
 /config.status
 /config.sub
@@ -28,6 +29,8 @@
 /plugin/scl/Makefile.in
 /resources.h
 /stamp-h1
+/suva-kschk
 /suva.spec
 /suvad
 /suvad-server
+
