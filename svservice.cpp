@@ -202,14 +202,24 @@ void svService::SwitchUserGroup(void)
     gid_t gid;
     conf->GetUidGid(uid, gid);
     if (gid != getegid()) {
-        setegid(gid);
-        svDebug("%s: Set effective GID to %d: %s",
-            name.c_str(), gid, strerror(errno));
+        if (setegid(gid) < 0) {
+            svError("%s: setegid(%d): %s",
+                name.c_str(), gid, strerror(errno));
+        }
+        else {
+            svDebug("%s: Set effective GID to %d",
+                name.c_str(), gid);
+        }
     }
     if (uid != geteuid()) {
-        seteuid(uid);
-        svDebug("%s: Set effective UID to %d: %s",
-            name.c_str(), uid, strerror(errno));
+        if (seteuid(uid) < 0) {
+            svError("%s: seteuid(%d): %s",
+                name.c_str(), uid, strerror(errno));
+        }
+        else {
+            svDebug("%s: Set effective UID to %d: %s",
+                name.c_str(), uid, strerror(errno));
+        }
     }
 #endif
 }
