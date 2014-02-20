@@ -23,7 +23,7 @@
 #include <sys/types.h>
 #include <stdint.h>
 
-#define SFD_VERSION	0x20100127
+#define SFD_VERSION 0x20100127
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,58 +32,58 @@ extern "C" {
 /* See sfd_write below */
 struct sfd_conf_t;
 typedef ssize_t (*sfd_write_t)(const struct sfd_conf_t *p_conf,
-	const void *buffer, size_t length);
+    const void *buffer, size_t length);
 
 /* Logging function */
 typedef void (*sfd_output_t)(uint32_t level,
-	const char *prefix, char *format, ...);
+    const char *prefix, char *format, ...);
 
 /* The Suva Front Door configuration structure */
 struct sfd_conf_t
 {
-	/* Socket descriptor of the the new connection accepted by Suva.
-	 * The plug-in uses this to communicate with the connecting protocol.
-	 * Do not close this socket, or enable blocking. */
-	int32_t sd;
+    /* Socket descriptor of the the new connection accepted by Suva.
+     * The plug-in uses this to communicate with the connecting protocol.
+     * Do not close this socket, or enable blocking. */
+    int32_t sd;
 
-	/* The following members are NULL and must be allocated by the plug-in
-	 * when it has collected the answers from the connecting protocol.
+    /* The following members are NULL and must be allocated by the plug-in
+     * when it has collected the answers from the connecting protocol.
 
-	 * Deivce name.  This is the name of the destination device. This is
-	 * only used to do a connection pool look-up. */
-	char *dev;
+     * Deivce name.  This is the name of the destination device. This is
+     * only used to do a connection pool look-up. */
+    char *dev;
 
-	/* Session name.  This is the name of the application requesting
-	 * the Suva network service.  This name must be present in the Suva
-	 * configuration file on both ends of the connection. */
-	char *session;
+    /* Session name.  This is the name of the application requesting
+     * the Suva network service.  This name must be present in the Suva
+     * configuration file on both ends of the connection. */
+    char *session;
 
-	/* Organization.  Must not be NULL. */
-	char *org;
+    /* Organization.  Must not be NULL. */
+    char *org;
 
-	/* The hostname or IP address of the desired destination device.  Must
-	 * not be NULL. */
-	char *dst_host;
+    /* The hostname or IP address of the desired destination device.  Must
+     * not be NULL. */
+    char *dst_host;
 
-	/* The TCP port address of the desired destination device.  If this is
-	 * 0, then the default Suva STL port address will be used. */
-	uint16_t dst_port;
+    /* The TCP port address of the desired destination device.  If this is
+     * 0, then the default Suva STL port address will be used. */
+    uint16_t dst_port;
 
-	/* Session TTL in seconds.  If the connection is inactive for longer
-	 * than this number of seconds, the connection will be closed.  If
-	 * left to 0, then the default session-ttl will be used. */
-	uint16_t session_ttl;
+    /* Session TTL in seconds.  If the connection is inactive for longer
+     * than this number of seconds, the connection will be closed.  If
+     * left to 0, then the default session-ttl will be used. */
+    uint16_t session_ttl;
 
-	/* This function can be called from sfd_answer if you need to
-	 * write to the other side of the authenticated Suva connection. */
-	sfd_write_t sfd_write;
+    /* This function can be called from sfd_answer if you need to
+     * write to the other side of the authenticated Suva connection. */
+    sfd_write_t sfd_write;
 
-	/* This is an address of a logging function that can be used to
-	 * send output to a pre-configured location (suvad.conf) */
-	sfd_output_t sfd_output;
+    /* This is an address of a logging function that can be used to
+     * send output to a pre-configured location (suvad.conf) */
+    sfd_output_t sfd_output;
 
-	/* Private data.  Used internally by Suva. */
-	void *private_data;
+    /* Private data.  Used internally by Suva. */
+    void *private_data;
 };
 
 /* Suva will call this plug-in function when it initializes.  You can use this
@@ -116,17 +116,18 @@ void sfd_close(const struct sfd_conf_t *p_conf, uint32_t reason);
 typedef void (*sfd_close_t)(const struct sfd_conf_t *, uint32_t);
 
 /* Connection closed because either end has hung-up. */
-#define SFD_CLOSE_HANGUP		0x00000001
+#define SFD_CLOSE_HANGUP        0x00000001
 /* Connection closed because the session TTL has expired. */
-#define SFD_CLOSE_TTL			0x00000002
+#define SFD_CLOSE_TTL           0x00000002
 /* Connection closed because of some unknown error. */
-#define SFD_CLOSE_ERROR			0x00000004
+#define SFD_CLOSE_ERROR         0x00000004
 /* Connection closed because authentication failed. */
-#define SFD_CLOSE_AUTH			0x00000008
+#define SFD_CLOSE_AUTH          0x00000008
 /* Connection closed because Suva has been terminated. */
-#define SFD_CLOSE_TERM			0x00000010
+#define SFD_CLOSE_TERM          0x00000010
 
 #ifdef __cplusplus
 }
 #endif // __cplusplus
 #endif // _SFD_H
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

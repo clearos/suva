@@ -107,11 +107,11 @@ cp config/init.d/%{vendor_sysvinit}-server $RPM_BUILD_ROOT%{_sysconfdir}/init.d/
 # suvactl.  So we're re-creating a dummy below so the old suvlets RPM postun
 # exits clean.  The compat-suvlets RPM will remove this.
 if [ -d "/usr/local/suva" -a ! -d "/usr/local/suva/bin" ]; then
-	mkdir -p /usr/local/suva/bin
-	suvactl=/usr/local/suva/bin/suvactl
-	echo "#!/bin/bash" > $suvactl
-	echo "exit 0" >> $suvactl
-	chmod a+rx $suvactl
+    mkdir -p /usr/local/suva/bin
+    suvactl=/usr/local/suva/bin/suvactl
+    echo "#!/bin/bash" > $suvactl
+    echo "exit 0" >> $suvactl
+    chmod a+rx $suvactl
 fi
 
 /sbin/service suvad condrestart
@@ -189,3 +189,4 @@ fi
 %defattr(-,root,root)
 %{_includedir}/sfd.h
 
+# vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4
