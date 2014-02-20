@@ -454,7 +454,7 @@ uint32_t svStorageEngine::PrepareSQL(
 }
 
 #ifdef HAVE_LIBDB
-#if DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 3
+#if (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 3) || DB_VERSION_MAJOR > 4
 static void db_output(const DB_ENV *dbenv,
 	const char *prefix, const char *message)
 #else
@@ -598,7 +598,7 @@ void svStorageEngineBerkeley::Connect(void)
 			string("db_create: ") + string(_SUVA_DB_HKCACHE) +
 			string(": ") + db_strerror(rc));
 	}
-#if DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1
+#if (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1) || DB_VERSION_MAJOR > 4
 	if ((rc = db_hkcache->open(db_hkcache,
 		NULL, _SUVA_DB_HKCACHE, NULL, DB_BTREE, DB_CREATE, 0)) != 0)
 #else
