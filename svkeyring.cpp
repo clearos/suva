@@ -75,106 +75,106 @@ extern int errno;
 
 static bool svRSAKeySort(svRSAKey *a, svRSAKey *b)
 {
-	return (a->GetLastModified() > b->GetLastModified());
+    return (a->GetLastModified() > b->GetLastModified());
 }
 
 svKeyRing::svKeyRing(const string &key_dir)
-	: svObject("svKeyRing")
+    : svObject("svKeyRing")
 {
-	Load(key_dir);
+    Load(key_dir);
 }
 
 svKeyRing::~svKeyRing()
 {
-	Clear();
+    Clear();
 }
 
 void svKeyRing::Load(const string &key_dir)
 {
-	Clear();
+    Clear();
 
-	if (chdir(key_dir.c_str()) == -1)
-		throw svExKeyRingChangeDirectory(key_dir, strerror(errno));
+    if (chdir(key_dir.c_str()) == -1)
+        throw svExKeyRingChangeDirectory(key_dir, strerror(errno));
 
-	DIR *dir;
-	if (!(dir = opendir(key_dir.c_str())))
-		throw svExKeyRingOpenDirectory(key_dir, strerror(errno));
+    DIR *dir;
+    if (!(dir = opendir(key_dir.c_str())))
+        throw svExKeyRingOpenDirectory(key_dir, strerror(errno));
 
-	vector<string> pem;
+    vector<string> pem;
 
-	struct dirent *de;
-	while ((de = readdir(dir))) {
-		string d_name = de->d_name;
-		size_t pos;
-		if ((pos = d_name.find_last_of('.')) == string::npos)
-			continue;
-		if (d_name.substr(pos) != ".pem") continue;
-		pem.push_back(d_name);
-	}
-	closedir(dir);
+    struct dirent *de;
+    while ((de = readdir(dir))) {
+        string d_name = de->d_name;
+        size_t pos;
+        if ((pos = d_name.find_last_of('.')) == string::npos)
+            continue;
+        if (d_name.substr(pos) != ".pem") continue;
+        pem.push_back(d_name);
+    }
+    closedir(dir);
 
-	for (vector<string>::iterator i = pem.begin();
-		i != pem.end(); i++) {
-		svRSAKey *key = NULL;
-		try {
-			key = new svRSAKey((*i));
-		} catch (runtime_error &e) {
-			svError("%s: %s", name.c_str(), e.what());
-			continue;
-		}
-		if (key && key->GetType() == svRSA_TYPE_PUBLIC)
-			key_public.push_back(key);
-		else if (key && key->GetType() == svRSA_TYPE_PRIVATE)
-			key_private.push_back(key);
-	}
+    for (vector<string>::iterator i = pem.begin();
+        i != pem.end(); i++) {
+        svRSAKey *key = NULL;
+        try {
+            key = new svRSAKey((*i));
+        } catch (runtime_error &e) {
+            svError("%s: %s", name.c_str(), e.what());
+            continue;
+        }
+        if (key && key->GetType() == svRSA_TYPE_PUBLIC)
+            key_public.push_back(key);
+        else if (key && key->GetType() == svRSA_TYPE_PRIVATE)
+            key_private.push_back(key);
+    }
 
-	sort(key_public.begin(), key_public.end(), svRSAKeySort);
-	sort(key_private.begin(), key_private.end(), svRSAKeySort);
+    sort(key_public.begin(), key_public.end(), svRSAKeySort);
+    sort(key_private.begin(), key_private.end(), svRSAKeySort);
 }
 
 void svKeyRing::Copy(svRSAKeyType type, vector<RSA *> &key_ring)
 {
-	switch (type) {
-	case svRSA_TYPE_PUBLIC:
-		for (vector<svRSAKey *>::iterator i = key_public.begin();
-			i != key_public.end(); i++)
-			key_ring.push_back((*i)->Duplicate());
-		break;
+    switch (type) {
+    case svRSA_TYPE_PUBLIC:
+        for (vector<svRSAKey *>::iterator i = key_public.begin();
+            i != key_public.end(); i++)
+            key_ring.push_back((*i)->Duplicate());
+        break;
 
-	case svRSA_TYPE_PRIVATE:
-		for (vector<svRSAKey *>::iterator i = key_private.begin();
-			i != key_private.end(); i++)
-			key_ring.push_back((*i)->Duplicate());
-		break;
-	default:
-		break;
-	}
+    case svRSA_TYPE_PRIVATE:
+        for (vector<svRSAKey *>::iterator i = key_private.begin();
+            i != key_private.end(); i++)
+            key_ring.push_back((*i)->Duplicate());
+        break;
+    default:
+        break;
+    }
 }
 
 uint32_t svKeyRing::GetCount(svRSAKeyType type)
 {
-	switch (type) {
-	case svRSA_TYPE_PUBLIC:
-		return key_public.size();
-	case svRSA_TYPE_PRIVATE:
-		return key_private.size();
-	default:
-		return key_public.size() + key_private.size();
-	}
+    switch (type) {
+    case svRSA_TYPE_PUBLIC:
+        return key_public.size();
+    case svRSA_TYPE_PRIVATE:
+        return key_private.size();
+    default:
+        return key_public.size() + key_private.size();
+    }
 }
 
 void svKeyRing::Clear(void)
 {
-	for (vector<svRSAKey *>::iterator i = key_public.begin();
-		i != key_public.end(); i++) {
-		delete (*i);
-	}
-	key_public.clear();
-	for (vector<svRSAKey *>::iterator i = key_private.begin();
-		i != key_private.end(); i++) {
-		delete (*i);
-	}
-	key_private.clear();
+    for (vector<svRSAKey *>::iterator i = key_public.begin();
+        i != key_public.end(); i++) {
+        delete (*i);
+    }
+    key_public.clear();
+    for (vector<svRSAKey *>::iterator i = key_private.begin();
+        i != key_private.end(); i++) {
+        delete (*i);
+    }
+    key_private.clear();
 }
 
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

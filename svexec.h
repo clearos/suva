@@ -30,7 +30,7 @@
 #define _SVEXEC_H
 
 #ifndef _SUVA_APP_WAIT
-#define _SUVA_APP_WAIT		60
+#define _SUVA_APP_WAIT      60
 #endif
 
 using namespace std;
@@ -38,36 +38,36 @@ using namespace std;
 class svExExecFork : public runtime_error
 {
 public:
-	explicit svExExecFork()
-		: runtime_error("") { };
-	virtual ~svExExecFork() throw() { };
+    explicit svExExecFork()
+        : runtime_error("") { };
+    virtual ~svExExecFork() throw() { };
 };
 
 class svExec : public svEventClient
 {
 public:
-	svExec(const svConfSessionApp &conf_app,
-		const string &dev, const string &org, const string &session,
-		const string &remote_host);
-	virtual ~svExec();
+    svExec(const svConfSessionApp &conf_app,
+        const string &dev, const string &org, const string &session,
+        const string &remote_host);
+    virtual ~svExec();
 
-	pid_t GetPid(void) { return pid; };
-	svSocket *Execute(void);
-	void Exited(int status);
-	void Terminate(void);
-	bool HasExited(void) { return exited; };
+    pid_t GetPid(void) { return pid; };
+    svSocket *Execute(void);
+    void Exited(int status);
+    void Terminate(void);
+    bool HasExited(void) { return exited; };
 
 protected:
-	pid_t pid;
-	svSocketPair *skt;
-	string path;
-	vector<string> args;
-	bool exited;
-	char **argv;
-	char **envp;
-	int fd_read;
-	int fd_write;
+    pid_t pid;
+    svSocketPair *skt;
+    string path;
+    vector<string> args;
+    bool exited;
+    char **argv;
+    char **envp;
+    int fd_read;
+    int fd_write;
 };
 
 #endif // _SVEXEC_H
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

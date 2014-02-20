@@ -79,47 +79,47 @@ extern int errno;
 
 static void *sv_thread_entry(void *param)
 {
-	svThread *thread = (svThread *)param;
+    svThread *thread = (svThread *)param;
 #if defined(__linux__) && !defined(__ANDROID__)
-	pid_t tid = (pid_t)syscall(SYS_gettid);
-	//pid_t tid = __sync_fetch_and_add(&__tid_base, 1);
-	thread->SetThreadId(tid);
+    pid_t tid = (pid_t)syscall(SYS_gettid);
+    //pid_t tid = __sync_fetch_and_add(&__tid_base, 1);
+    thread->SetThreadId(tid);
 #endif
-	return thread->Entry();
+    return thread->Entry();
 }
 
 svThread::svThread(const string &name, size_t stack_size)
-	: svEventClient(name)
+    : svEventClient(name)
 {
-	int rc;
-	if ((rc = pthread_attr_init(&attr)) != 0)
-		throw svExThread(name, "pthread_attr_init", strerror(rc));
-	if ((rc = pthread_attr_setstacksize(&attr, stack_size)) != 0)
-		throw svExThread(name, "pthread_attr_setstacksize", strerror(rc));
+    int rc;
+    if ((rc = pthread_attr_init(&attr)) != 0)
+        throw svExThread(name, "pthread_attr_init", strerror(rc));
+    if ((rc = pthread_attr_setstacksize(&attr, stack_size)) != 0)
+        throw svExThread(name, "pthread_attr_setstacksize", strerror(rc));
 #ifndef __WIN32__
-	id = 0;
+    id = 0;
 #endif
 }
 
 void svThread::Start(void)
 {
-	int rc;
-	if ((rc = pthread_create(&id, &attr, &sv_thread_entry, (void *)this)) != 0)
-		throw svExThread(name, "pthread_create", strerror(rc));
+    int rc;
+    if ((rc = pthread_create(&id, &attr, &sv_thread_entry, (void *)this)) != 0)
+        throw svExThread(name, "pthread_create", strerror(rc));
 }
 
 void svThread::Join(void)
 {
-	int rc;
-	if ((rc = pthread_attr_destroy(&attr)) != 0)
-		svError("%s: pthread_attr_destroy: %s", name.c_str(), strerror(rc));
+    int rc;
+    if ((rc = pthread_attr_destroy(&attr)) != 0)
+        svError("%s: pthread_attr_destroy: %s", name.c_str(), strerror(rc));
 #ifndef __WIN32__
-	if (id != 0 && (rc = pthread_join(id, NULL)) != 0)
-		svError("%s: pthread_join: %s", name.c_str(), strerror(rc));
+    if (id != 0 && (rc = pthread_join(id, NULL)) != 0)
+        svError("%s: pthread_join: %s", name.c_str(), strerror(rc));
 #else
-	if ((rc = pthread_join(id, NULL)) != 0)
-		svError("%s: pthread_join: %s", name.c_str(), strerror(rc));
+    if ((rc = pthread_join(id, NULL)) != 0)
+        svError("%s: pthread_join: %s", name.c_str(), strerror(rc));
 #endif
 }
 
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

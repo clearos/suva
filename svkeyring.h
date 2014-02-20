@@ -34,37 +34,37 @@ using namespace std;
 class svExKeyRingChangeDirectory : public runtime_error
 {
 public:
-	explicit svExKeyRingChangeDirectory(
-		const string &key_dir, const string &what)
-		: runtime_error(key_dir + ": " + what) { };
-	virtual ~svExKeyRingChangeDirectory() throw() { };
+    explicit svExKeyRingChangeDirectory(
+        const string &key_dir, const string &what)
+        : runtime_error(key_dir + ": " + what) { };
+    virtual ~svExKeyRingChangeDirectory() throw() { };
 };
 
 class svExKeyRingOpenDirectory : public runtime_error
 {
 public:
-	explicit svExKeyRingOpenDirectory(
-		const string &key_dir, const string &what)
-		: runtime_error(key_dir + ": " + what) { };
-	virtual ~svExKeyRingOpenDirectory() throw() { };
+    explicit svExKeyRingOpenDirectory(
+        const string &key_dir, const string &what)
+        : runtime_error(key_dir + ": " + what) { };
+    virtual ~svExKeyRingOpenDirectory() throw() { };
 };
 
 class svKeyRing : public svObject
 {
 public:
-	svKeyRing(const string &key_dir);
-	virtual ~svKeyRing();
+    svKeyRing(const string &key_dir);
+    virtual ~svKeyRing();
 
-	void Load(const string &key_dir);
-	void Copy(svRSAKeyType type, vector<RSA *> &key_ring);
-	uint32_t GetCount(svRSAKeyType type = svRSA_TYPE_NULL);
+    void Load(const string &key_dir);
+    void Copy(svRSAKeyType type, vector<RSA *> &key_ring);
+    uint32_t GetCount(svRSAKeyType type = svRSA_TYPE_NULL);
 
 protected:
-	vector<svRSAKey *> key_public;
-	vector<svRSAKey *> key_private;
+    vector<svRSAKey *> key_public;
+    vector<svRSAKey *> key_private;
 
-	void Clear(void);
+    void Clear(void);
 };
 
 #endif // _SVKEYRING_H
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

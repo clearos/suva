@@ -34,62 +34,62 @@ using namespace std;
 class svExServiceSystemCall : public runtime_error
 {
 public:
-	explicit svExServiceSystemCall(
-		const string &call, const string &what)
-		: runtime_error(call + ": " + what) { };
-	virtual ~svExServiceSystemCall() throw() { };
+    explicit svExServiceSystemCall(
+        const string &call, const string &what)
+        : runtime_error(call + ": " + what) { };
+    virtual ~svExServiceSystemCall() throw() { };
 };
 
 class svExServiceUnknownDescriptor : public runtime_error
 {
 public:
-	explicit svExServiceUnknownDescriptor(const string &what)
-		: runtime_error(what) { };
-	virtual ~svExServiceUnknownDescriptor() throw() { };
+    explicit svExServiceUnknownDescriptor(const string &what)
+        : runtime_error(what) { };
+    virtual ~svExServiceUnknownDescriptor() throw() { };
 };
 
 class svService : public svEventClient
 {
 public:
-	svService(const string &name, svConf *conf);
-	virtual ~svService();
+    svService(const string &name, svConf *conf);
+    virtual ~svService();
 
-	static svConf *GetConf(void) { return conf; };
+    static svConf *GetConf(void) { return conf; };
 
-	virtual void Start(void) = 0;
+    virtual void Start(void) = 0;
 
-	virtual void HandleStateRequest(void);
+    virtual void HandleStateRequest(void);
 
 protected:
-	svThreadSignal *thread_signal;
-	vector<svSession *> session;
-	vector<svSocket *> skt_listen;
-	vector<svSocket *> skt_client;
-	svSocketSet skt_set;
-	map<string, map<string, svSession *> > vpn_client;
+    svThreadSignal *thread_signal;
+    vector<svSession *> session;
+    vector<svSocket *> skt_listen;
+    vector<svSocket *> skt_client;
+    svSocketSet skt_set;
+    map<string, map<string, svSession *> > vpn_client;
 
-	static svConf *conf;
+    static svConf *conf;
 
-	void Daemonize(void);
-	void StartSignalHandler(void);
-	void SaveProcessId(void);
-	void ProcessEvent(svEvent *event);
-	void SwitchUserGroup(void);
-	void CreateSockets(void);
-	void SelectSockets(void);
-	virtual void ClientSocketRead(svSocket *skt);
+    void Daemonize(void);
+    void StartSignalHandler(void);
+    void SaveProcessId(void);
+    void ProcessEvent(svEvent *event);
+    void SwitchUserGroup(void);
+    void CreateSockets(void);
+    void SelectSockets(void);
+    virtual void ClientSocketRead(svSocket *skt);
 
-	virtual void CreateSessionConnect(svSocket *skt,
-		svConfFrontDoor *sfd) = 0;
-	virtual void CreateSessionConnect(svSocket *skt,
-		svConfSessionTunnel *tunnel) = 0;
-	virtual void CreateSessionAccept(svSocket *skt) = 0;
+    virtual void CreateSessionConnect(svSocket *skt,
+        svConfFrontDoor *sfd) = 0;
+    virtual void CreateSessionConnect(svSocket *skt,
+        svConfSessionTunnel *tunnel) = 0;
+    virtual void CreateSessionAccept(svSocket *skt) = 0;
 
-	void CreateSession(svSession *s);
-	virtual void DestroySession(svSession *s);
+    void CreateSession(svSession *s);
+    virtual void DestroySession(svSession *s);
 
-	void CreateVpnClientThreads(void);
+    void CreateVpnClientThreads(void);
 };
 
 #endif // _SVSERVICE_H
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

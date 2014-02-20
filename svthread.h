@@ -30,7 +30,7 @@
 #define _SVTHREAD_H
 
 #ifndef _SUVA_STACK_SIZE
-#define _SUVA_STACK_SIZE		32768
+#define _SUVA_STACK_SIZE        32768
 #endif
 
 using namespace std;
@@ -38,32 +38,32 @@ using namespace std;
 class svExThread : public runtime_error
 {
 public:
-	explicit svExThread(const string &name, const string &func, const string &what)
-		: runtime_error(name + ": " + func + ": " + what) { };
-	virtual ~svExThread() throw() { };
+    explicit svExThread(const string &name, const string &func, const string &what)
+        : runtime_error(name + ": " + func + ": " + what) { };
+    virtual ~svExThread() throw() { };
 };
 
 class svThread : public svEventClient
 {
 public:
-	svThread(const string &name,
-		size_t stack_size = _SUVA_STACK_SIZE);
-	virtual ~svThread() { };
+    svThread(const string &name,
+        size_t stack_size = _SUVA_STACK_SIZE);
+    virtual ~svThread() { };
 
-	pthread_t GetId(void) { return id; };
-	pid_t GetThreadId(void) { return tid; };
-	void SetThreadId(pid_t tid) { this->tid = tid; };
+    pthread_t GetId(void) { return id; };
+    pid_t GetThreadId(void) { return tid; };
+    void SetThreadId(pid_t tid) { this->tid = tid; };
 
-	virtual void Start(void);
-	virtual void *Entry(void) = 0;
+    virtual void Start(void);
+    virtual void *Entry(void) = 0;
 
 protected:
-	pid_t tid;
-	pthread_t id;
-	pthread_attr_t attr;
+    pid_t tid;
+    pthread_t id;
+    pthread_attr_t attr;
 
-	void Join(void);
+    void Join(void);
 };
 
 #endif // _SVTHREAD_H
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

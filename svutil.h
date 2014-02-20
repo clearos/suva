@@ -37,7 +37,7 @@ void svBacktrace(void);
 long svGetPageSize(void);
 
 #ifdef HAVE_USLEEP
-#define svDelay(d)	usleep(d * 1000)
+#define svDelay(d)  usleep(d * 1000)
 #else
 int svDelay(int ms);
 #endif
@@ -45,14 +45,14 @@ int svDelay(int ms);
 class svMutexLocker
 {
 public:
-	svMutexLocker(pthread_mutex_t *mutex)
-		: mutex(mutex) { pthread_mutex_lock(mutex); };
+    svMutexLocker(pthread_mutex_t *mutex)
+        : mutex(mutex) { pthread_mutex_lock(mutex); };
 
-	virtual ~svMutexLocker() { pthread_mutex_unlock(mutex); };
+    virtual ~svMutexLocker() { pthread_mutex_unlock(mutex); };
 
 protected:
-	pthread_mutex_t *mutex;
+    pthread_mutex_t *mutex;
 };
 
 #endif // _SVUTIL_H
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

@@ -34,42 +34,42 @@ using namespace std;
 class svConfServer : public svConf
 {
 public:
-	svConfServer(int argc, char *argv[]) :
-		svConf(argc, argv) { Load(); };
-	virtual void Usage(bool version = false);
-	virtual void Save(bool client = true) { svConf::Save(false); };
+    svConfServer(int argc, char *argv[]) :
+        svConf(argc, argv) { Load(); };
+    virtual void Usage(bool version = false);
+    virtual void Save(bool client = true) { svConf::Save(false); };
 };
 
 class svServer : public svService
 {
 public:
-	svServer(svConf *conf);
-	~svServer();
+    svServer(svConf *conf);
+    ~svServer();
 
-	void Start(void);
+    void Start(void);
 
 protected:
-	map<string, svKeyRing *> key_ring;
-	map<string, svThreadStorage *> storage;
-	map<string, map<string, vector<svPoolClient *> > > pool;
+    map<string, svKeyRing *> key_ring;
+    map<string, svThreadStorage *> storage;
+    map<string, map<string, vector<svPoolClient *> > > pool;
 
-	void LoadKeyRing(void);
-	void CreateStorageThreads(void);
-	virtual void ClientSocketRead(svSocket *skt);
+    void LoadKeyRing(void);
+    void CreateStorageThreads(void);
+    virtual void ClientSocketRead(svSocket *skt);
 
-	void CreateSessionConnect(svSocket *skt,
-		svConfFrontDoor *sfd);
-	void CreateSessionConnect(svSocket *skt,
-		svConfSessionTunnel *tunnel);
-	void CreateSessionAccept(svSocket *skt);
+    void CreateSessionConnect(svSocket *skt,
+        svConfFrontDoor *sfd);
+    void CreateSessionConnect(svSocket *skt,
+        svConfSessionTunnel *tunnel);
+    void CreateSessionAccept(svSocket *skt);
 
-	void KeyRingRequest(svEventKeyRingRequest *request);
-	void HostKeyRequest(svEventHostKeyRequest *request);
-	void HostKeyResult(svEventHostKeyResult *result);
+    void KeyRingRequest(svEventKeyRingRequest *request);
+    void HostKeyRequest(svEventHostKeyRequest *request);
+    void HostKeyResult(svEventHostKeyResult *result);
 
-	void PoolClientSave(svEventPoolClientSave *event);
-	void PoolClientLoad(svEventPoolClientLoad *event);
+    void PoolClientSave(svEventPoolClientSave *event);
+    void PoolClientLoad(svEventPoolClientLoad *event);
 };
 
 #endif // _SVSERVER_H
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

@@ -65,129 +65,129 @@
 #include "svplugin.h"
 
 static void sv_plugin_output(uint32_t level,
-	const char *prefix, char *format, ...)
+    const char *prefix, char *format, ...)
 {
 }
 
 svPlugin::svPlugin(svPluginType type, const svConfPlugin &conf)
-	: svObject("svPlugin"), type(type), dso(NULL)
+    : svObject("svPlugin"), type(type), dso(NULL)
 {
-	svConfPlugin plugin_conf(conf);
-	name = plugin_conf.GetName();
-	path = plugin_conf.GetLibrary();
+    svConfPlugin plugin_conf(conf);
+    name = plugin_conf.GetName();
+    path = plugin_conf.GetLibrary();
 }
 
 svPlugin::~svPlugin()
 {
-	Unload();
+    Unload();
 }
 
 void svPlugin::Load(void)
 {
-	if (!(dso = DSO_load(NULL, path.c_str(), NULL, 0)))
-		throw svExPluginLoad(name + " (" + path.c_str() + ")");
+    if (!(dso = DSO_load(NULL, path.c_str(), NULL, 0)))
+        throw svExPluginLoad(name + " (" + path.c_str() + ")");
 }
 
 void svPlugin::Unload(void)
 {
-	if (dso) {
-		DSO_free(dso);
-		dso = NULL;
-	}
+    if (dso) {
+        DSO_free(dso);
+        dso = NULL;
+    }
 }
 
 svPluginFrontDoor::svPluginFrontDoor(const svConfPlugin &conf,
-	svSocket *skt)
-	: svPlugin(svSPT_SFD, conf),
-	sfd_load(NULL), sfd_unload(NULL), sfd_knock(NULL),
-	sfd_answer(NULL), sfd_close(NULL)
+    svSocket *skt)
+    : svPlugin(svSPT_SFD, conf),
+    sfd_load(NULL), sfd_unload(NULL), sfd_knock(NULL),
+    sfd_answer(NULL), sfd_close(NULL)
 {
-	Load();
-	memset(&sfd_conf, 0, sizeof(struct sfd_conf_t));
-	sfd_conf.sd = skt->GetDescriptor();
-	sfd_conf.sfd_output = sv_plugin_output;
+    Load();
+    memset(&sfd_conf, 0, sizeof(struct sfd_conf_t));
+    sfd_conf.sd = skt->GetDescriptor();
+    sfd_conf.sfd_output = sv_plugin_output;
 }
 
 svPluginFrontDoor::~svPluginFrontDoor()
 {
-	Unload();
+    Unload();
 }
 
 #ifndef HAVE_STRNLEN
-#define strnlen(s, n)	strlen(s)
+#define strnlen(s, n)   strlen(s)
 #endif
 
 void svPluginFrontDoor::Knock(void)
 {
-	int rc = sfd_knock(&sfd_conf);
-	if (rc != 0) {
-		throw svExPluginFrontDoorKnock(name,
-			"Front door knock failed");
-	}
+    int rc = sfd_knock(&sfd_conf);
+    if (rc != 0) {
+        throw svExPluginFrontDoorKnock(name,
+            "Front door knock failed");
+    }
 
-	if (sfd_conf.dev == NULL ||
-		sfd_conf.session == NULL ||
-		sfd_conf.org == NULL ||
-		sfd_conf.dst_host == NULL) {
-		throw svExPluginFrontDoorKnock(name,
-			"Front door knock returned invalid data");
-	}
+    if (sfd_conf.dev == NULL ||
+        sfd_conf.session == NULL ||
+        sfd_conf.org == NULL ||
+        sfd_conf.dst_host == NULL) {
+        throw svExPluginFrontDoorKnock(name,
+            "Front door knock returned invalid data");
+    }
 
-	svLegalizeString(dev, sfd_conf.dev,
-		strnlen(sfd_conf.dev, _SUVA_MAX_NAME_LEN));
-	svLegalizeString(org, sfd_conf.org,
-		strnlen(sfd_conf.org, _SUVA_MAX_NAME_LEN));
-	svLegalizeString(session, sfd_conf.session,
-		strnlen(sfd_conf.session, _SUVA_MAX_NAME_LEN));
-	svLegalizeString(dst_host, sfd_conf.dst_host,
-		strnlen(sfd_conf.dst_host, _SUVA_MAX_NAME_LEN));
+    svLegalizeString(dev, sfd_conf.dev,
+        strnlen(sfd_conf.dev, _SUVA_MAX_NAME_LEN));
+    svLegalizeString(org, sfd_conf.org,
+        strnlen(sfd_conf.org, _SUVA_MAX_NAME_LEN));
+    svLegalizeString(session, sfd_conf.session,
+        strnlen(sfd_conf.session, _SUVA_MAX_NAME_LEN));
+    svLegalizeString(dst_host, sfd_conf.dst_host,
+        strnlen(sfd_conf.dst_host, _SUVA_MAX_NAME_LEN));
 }
 
 void svPluginFrontDoor::Answer(void)
 {
-	if (sfd_answer) sfd_answer(&sfd_conf);
+    if (sfd_answer) sfd_answer(&sfd_conf);
 }
 
 void svPluginFrontDoor::Close(uint32_t reason)
 {
-	if (sfd_close) sfd_close(&sfd_conf, reason);
+    if (sfd_close) sfd_close(&sfd_conf, reason);
 }
 
 void svPluginFrontDoor::Load(void)
 {
-	svPlugin::Load();
-	if (!(sfd_load = (sfd_load_t)DSO_bind_func(dso, "sfd_load")))
-		throw svExPluginBind(name, "sfd_load");
+    svPlugin::Load();
+    if (!(sfd_load = (sfd_load_t)DSO_bind_func(dso, "sfd_load")))
+        throw svExPluginBind(name, "sfd_load");
 
-	int version = sfd_load(sv_plugin_output);
-	if (version == -1) {
-		throw svExPluginFrontDoorInit(name,
-			"Font-door initialization failed");
-	} else if ((uint32_t)version > SFD_VERSION) {
-		throw svExPluginFrontDoorVersion(name,
-			"Incompatible front door version; too new");
-	} else if ((uint32_t)version <= 0x20071126) {
-		throw svExPluginFrontDoorVersion(name,
-			"Incompatible front door version; too old");
-	}
+    int version = sfd_load(sv_plugin_output);
+    if (version == -1) {
+        throw svExPluginFrontDoorInit(name,
+            "Font-door initialization failed");
+    } else if ((uint32_t)version > SFD_VERSION) {
+        throw svExPluginFrontDoorVersion(name,
+            "Incompatible front door version; too new");
+    } else if ((uint32_t)version <= 0x20071126) {
+        throw svExPluginFrontDoorVersion(name,
+            "Incompatible front door version; too old");
+    }
 
-	Bind();
+    Bind();
 }
 
 void svPluginFrontDoor::Unload(void)
 {
-	if (sfd_unload) sfd_unload();
-	svPlugin::Unload();
+    if (sfd_unload) sfd_unload();
+    svPlugin::Unload();
 }
 
 void svPluginFrontDoor::Bind(void)
 {
-	if (!(sfd_unload = (sfd_unload_t)DSO_bind_func(dso,
-		"sfd_unload"))) throw svExPluginBind(name, "sfd_unload");
-	if (!(sfd_knock = (sfd_knock_t)DSO_bind_func(dso,
-		"sfd_knock"))) throw svExPluginBind(name, "sfd_knock");
-	sfd_answer = (sfd_answer_t)DSO_bind_func(dso, "sfd_answer");
-	sfd_close = (sfd_close_t)DSO_bind_func(dso, "sfd_close");
+    if (!(sfd_unload = (sfd_unload_t)DSO_bind_func(dso,
+        "sfd_unload"))) throw svExPluginBind(name, "sfd_unload");
+    if (!(sfd_knock = (sfd_knock_t)DSO_bind_func(dso,
+        "sfd_knock"))) throw svExPluginBind(name, "sfd_knock");
+    sfd_answer = (sfd_answer_t)DSO_bind_func(dso, "sfd_answer");
+    sfd_close = (sfd_close_t)DSO_bind_func(dso, "sfd_close");
 }
 
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

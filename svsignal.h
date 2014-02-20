@@ -32,14 +32,14 @@
 class svThreadSignal : public svThread
 {
 public:
-	svThreadSignal(const sigset_t &signal_set);
-	virtual ~svThreadSignal();
+    svThreadSignal(const sigset_t &signal_set);
+    virtual ~svThreadSignal();
 
-	virtual void *Entry(void);
+    virtual void *Entry(void);
 
 protected:
-	sigset_t signal_set;
+    sigset_t signal_set;
 };
 
 #endif // _SVSIGNAL_H
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

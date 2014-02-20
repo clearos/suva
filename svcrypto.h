@@ -31,259 +31,259 @@
 
 enum svAESKeySize
 {
-	svKS_AES_NULL,
-	svKS_AES_128,
-	svKS_AES_192,
-	svKS_AES_256
+    svKS_AES_NULL,
+    svKS_AES_128,
+    svKS_AES_192,
+    svKS_AES_256
 };
 
 enum svAESCrypt
 {
-	svAES_ENCRYPT,
-	svAES_DECRYPT
+    svAES_ENCRYPT,
+    svAES_DECRYPT
 };
 
 enum svRSACrypt
 {
-	svRSA_PUBLIC_ENCRYPT,
-	svRSA_PRIVATE_DECRYPT,
+    svRSA_PUBLIC_ENCRYPT,
+    svRSA_PRIVATE_DECRYPT,
 };
 
 enum svRSAKeyType
 {
-	svRSA_TYPE_NULL,
-	svRSA_TYPE_PUBLIC,
-	svRSA_TYPE_PRIVATE,
+    svRSA_TYPE_NULL,
+    svRSA_TYPE_PUBLIC,
+    svRSA_TYPE_PRIVATE,
 };
 
-#define _SUVA_MAX_AES_KEY_SIZE	256
+#define _SUVA_MAX_AES_KEY_SIZE  256
 
 class svExCryptoInvalidKeySize : public runtime_error
 {
 public:
-	explicit svExCryptoInvalidKeySize(const string &what)
-		: runtime_error(what) { };
-	virtual ~svExCryptoInvalidKeySize() throw() { };
+    explicit svExCryptoInvalidKeySize(const string &what)
+        : runtime_error(what) { };
+    virtual ~svExCryptoInvalidKeySize() throw() { };
 };
 
 class svExCryptoRandBytes : public runtime_error
 {
 public:
-	explicit svExCryptoRandBytes()
-		: runtime_error("Error gathering random bytes") { };
-	virtual ~svExCryptoRandBytes() throw() { };
+    explicit svExCryptoRandBytes()
+        : runtime_error("Error gathering random bytes") { };
+    virtual ~svExCryptoRandBytes() throw() { };
 };
 
 class svExCryptoPublicRSAEncrypt : public runtime_error
 {
 public:
-	explicit svExCryptoPublicRSAEncrypt()
-		: runtime_error("Public RSA encryption failed") { };
-	virtual ~svExCryptoPublicRSAEncrypt() throw() { };
+    explicit svExCryptoPublicRSAEncrypt()
+        : runtime_error("Public RSA encryption failed") { };
+    virtual ~svExCryptoPublicRSAEncrypt() throw() { };
 };
 
 class svExCryptoPrivateRSADecrypt : public runtime_error
 {
 public:
-	explicit svExCryptoPrivateRSADecrypt()
-		: runtime_error("Private RSA decryption failed") { };
-	virtual ~svExCryptoPrivateRSADecrypt() throw() { };
+    explicit svExCryptoPrivateRSADecrypt()
+        : runtime_error("Private RSA decryption failed") { };
+    virtual ~svExCryptoPrivateRSADecrypt() throw() { };
 };
 
 class svExCryptoSetAESEncryptKey : public runtime_error
 {
 public:
-	explicit svExCryptoSetAESEncryptKey()
-		: runtime_error("Error setting AES encrypt key") { };
-	virtual ~svExCryptoSetAESEncryptKey() throw() { };
+    explicit svExCryptoSetAESEncryptKey()
+        : runtime_error("Error setting AES encrypt key") { };
+    virtual ~svExCryptoSetAESEncryptKey() throw() { };
 };
 
 class svExCryptoSetAESDecryptKey : public runtime_error
 {
 public:
-	explicit svExCryptoSetAESDecryptKey()
-		: runtime_error("Error setting AES decrypt key") { };
-	virtual ~svExCryptoSetAESDecryptKey() throw() { };
+    explicit svExCryptoSetAESDecryptKey()
+        : runtime_error("Error setting AES decrypt key") { };
+    virtual ~svExCryptoSetAESDecryptKey() throw() { };
 };
 
 class svExCryptoHostKeyParseError : public runtime_error
 {
 public:
-	explicit svExCryptoHostKeyParseError()
-		: runtime_error("Error parsing host key") { };
-	virtual ~svExCryptoHostKeyParseError() throw() { };
+    explicit svExCryptoHostKeyParseError()
+        : runtime_error("Error parsing host key") { };
+    virtual ~svExCryptoHostKeyParseError() throw() { };
 };
 
 class svPacket;
 class svCrypto : public svObject
 {
 public:
-	svCrypto(uint32_t aes_key_size);
-	svCrypto(svAESKeySize aes_key_size);
-	virtual ~svCrypto();
+    svCrypto(uint32_t aes_key_size);
+    svCrypto(svAESKeySize aes_key_size);
+    virtual ~svCrypto();
 
-	static void Initialize(void);
-	static void Uninitialize(void);
+    static void Initialize(void);
+    static void Uninitialize(void);
 
-	void SetAESKeySize(uint32_t aes_key_size);
-	void SetAESKeySize(svAESKeySize aes_key_size);
+    void SetAESKeySize(uint32_t aes_key_size);
+    void SetAESKeySize(svAESKeySize aes_key_size);
 
-	void SetAESKey(svAESCrypt mode,
-		const uint8_t *plain_key, AES_KEY &crypt_key);
-	void SetAESKey(svAESCrypt mode, const uint8_t *plain_key);
+    void SetAESKey(svAESCrypt mode,
+        const uint8_t *plain_key, AES_KEY &crypt_key);
+    void SetAESKey(svAESCrypt mode, const uint8_t *plain_key);
 
-	uint8_t *DuplicateAESKey(void);
+    uint8_t *DuplicateAESKey(void);
 
-	svAESKeySize GetAESKeySize(void) { return aes_key_size; };
-	uint32_t GetAESKeyBits(void) { return aes_key_bits; };
-	uint32_t GetAESKeyBytes(void) { return aes_key_bytes; };
+    svAESKeySize GetAESKeySize(void) { return aes_key_size; };
+    uint32_t GetAESKeyBits(void) { return aes_key_bits; };
+    uint32_t GetAESKeyBytes(void) { return aes_key_bytes; };
 
-	int GatherRandomBytes(uint8_t *buffer, int length);
+    int GatherRandomBytes(uint8_t *buffer, int length);
 
-	void GenerateAESKey(void);
-	uint8_t *GetAESRawKey(void) { return aes_key; };
-	AES_KEY *GetAESKey(svAESCrypt mode)
-	{
-		switch (mode) {
-		case svAES_ENCRYPT:
-			return &aes_key_encrypt;
-		case svAES_DECRYPT:
-			return &aes_key_decrypt;
-		}
-		return NULL;
-	};
+    void GenerateAESKey(void);
+    uint8_t *GetAESRawKey(void) { return aes_key; };
+    AES_KEY *GetAESKey(svAESCrypt mode)
+    {
+        switch (mode) {
+        case svAES_ENCRYPT:
+            return &aes_key_encrypt;
+        case svAES_DECRYPT:
+            return &aes_key_decrypt;
+        }
+        return NULL;
+    };
 
-	void AESCrypt(svAESCrypt mode, AES_KEY &key, uint8_t *src,
-		uint32_t length, uint8_t *dst);
-	void AESCryptPacket(svAESCrypt mode, svPacket &pkt);
+    void AESCrypt(svAESCrypt mode, AES_KEY &key, uint8_t *src,
+        uint32_t length, uint8_t *dst);
+    void AESCryptPacket(svAESCrypt mode, svPacket &pkt);
 
-	void SetRSAPublicKey(RSA *key)
-	{
-		if (rsa_public_key) RSA_free(rsa_public_key);
-		rsa_public_key = key;
-	};
-	void SetRSAPrivateKey(RSA *key)
-	{ 
-		if (rsa_private_key) RSA_free(rsa_private_key);
-		rsa_private_key = key;
-	};
-	RSA *GetRSAPublicKey(void) { return rsa_public_key; };
-	RSA *GetRSAPrivateKey(void) { return rsa_private_key; };
-	uint32_t GetRSAPublicKeySize(void)
-	{
-		if (!rsa_public_key) return 0;
-		return RSA_size(rsa_public_key);
-	};
-	uint32_t GetRSAPrivateKeySize(void)
-	{
-		if (!rsa_private_key) return 0;
-		return RSA_size(rsa_private_key);
-	};
-	uint32_t RSACrypt(svRSACrypt mode, uint8_t *src, uint32_t length,
-		uint8_t *dst);
+    void SetRSAPublicKey(RSA *key)
+    {
+        if (rsa_public_key) RSA_free(rsa_public_key);
+        rsa_public_key = key;
+    };
+    void SetRSAPrivateKey(RSA *key)
+    { 
+        if (rsa_private_key) RSA_free(rsa_private_key);
+        rsa_private_key = key;
+    };
+    RSA *GetRSAPublicKey(void) { return rsa_public_key; };
+    RSA *GetRSAPrivateKey(void) { return rsa_private_key; };
+    uint32_t GetRSAPublicKeySize(void)
+    {
+        if (!rsa_public_key) return 0;
+        return RSA_size(rsa_public_key);
+    };
+    uint32_t GetRSAPrivateKeySize(void)
+    {
+        if (!rsa_private_key) return 0;
+        return RSA_size(rsa_private_key);
+    };
+    uint32_t RSACrypt(svRSACrypt mode, uint8_t *src, uint32_t length,
+        uint8_t *dst);
 
-	void SetHostKey(const char *hostkey);
-	uint8_t *GetHostKey(void) { return hostkey; };
+    void SetHostKey(const char *hostkey);
+    uint8_t *GetHostKey(void) { return hostkey; };
 
-	uint32_t GetMaxPayloadSize(void) { return max_payload_size; };
+    uint32_t GetMaxPayloadSize(void) { return max_payload_size; };
 
-	static pthread_mutex_t **mutex_crypto;
+    static pthread_mutex_t **mutex_crypto;
 
 protected:
-	uint8_t aes_key[_SUVA_MAX_AES_KEY_SIZE / 8];
-	AES_KEY aes_key_encrypt;
-	AES_KEY aes_key_decrypt;
-	svAESKeySize aes_key_size;
-	uint32_t aes_key_bits;
-	uint32_t aes_key_bytes;
-	uint32_t max_payload_size;
+    uint8_t aes_key[_SUVA_MAX_AES_KEY_SIZE / 8];
+    AES_KEY aes_key_encrypt;
+    AES_KEY aes_key_decrypt;
+    svAESKeySize aes_key_size;
+    uint32_t aes_key_bits;
+    uint32_t aes_key_bytes;
+    uint32_t max_payload_size;
 
-	RSA *rsa_public_key;
-	RSA *rsa_private_key;
+    RSA *rsa_public_key;
+    RSA *rsa_private_key;
 
-	uint8_t hostkey[_SUVA_MAX_HOSTKEY_LEN];
+    uint8_t hostkey[_SUVA_MAX_HOSTKEY_LEN];
 
-	FILE *h_urandom;
+    FILE *h_urandom;
 };
 
 class svExRSAKeyStat : public runtime_error
 {
 public:
-	explicit svExRSAKeyStat(const string &pem, const string &what)
-		: runtime_error(pem + ": " + what) { };
-	virtual ~svExRSAKeyStat() throw() { };
+    explicit svExRSAKeyStat(const string &pem, const string &what)
+        : runtime_error(pem + ": " + what) { };
+    virtual ~svExRSAKeyStat() throw() { };
 };
 
 class svExRSAKeyOpen : public runtime_error
 {
 public:
-	explicit svExRSAKeyOpen(const string &pem, const string &what)
-		: runtime_error(pem + ": " + what) { };
-	virtual ~svExRSAKeyOpen() throw() { };
+    explicit svExRSAKeyOpen(const string &pem, const string &what)
+        : runtime_error(pem + ": " + what) { };
+    virtual ~svExRSAKeyOpen() throw() { };
 };
 
 class svExRSAKeyInvalid : public runtime_error
 {
 public:
-	explicit svExRSAKeyInvalid(const string &pem)
-		: runtime_error(pem) { };
-	virtual ~svExRSAKeyInvalid() throw() { };
+    explicit svExRSAKeyInvalid(const string &pem)
+        : runtime_error(pem) { };
+    virtual ~svExRSAKeyInvalid() throw() { };
 };
 
 class svRSAKey : public svObject
 {
 public:
-	svRSAKey(const string &pem);
-	~svRSAKey();
+    svRSAKey(const string &pem);
+    ~svRSAKey();
 
-	RSA *Get(void) { return key; };
-	svRSAKeyType GetType(void) { return type; };
-	time_t GetLastModified(void) { return mtime; };
-	uint32_t GetBits(void);
-	RSA *Duplicate(void);
+    RSA *Get(void) { return key; };
+    svRSAKeyType GetType(void) { return type; };
+    time_t GetLastModified(void) { return mtime; };
+    uint32_t GetBits(void);
+    RSA *Duplicate(void);
 
 protected:
-	svRSAKeyType type;
-	RSA *key;
-	time_t mtime;
+    svRSAKeyType type;
+    RSA *key;
+    time_t mtime;
 };
 
 class svHostKey : public svObject
 {
 public:
-	svHostKey();
-	svHostKey(const string &key, time_t age = 0);
+    svHostKey();
+    svHostKey(const string &key, time_t age = 0);
 
-	const string &GetKey(void) const { return key; };
-	time_t GetAge(void) const { return age; };
+    const string &GetKey(void) const { return key; };
+    time_t GetAge(void) const { return age; };
 
-	void SetKey(const string &key) { this->key = key; };
-	void AssignKey(const char *key)
-	{
-		this->key.assign(key, _SUVA_MAX_HOSTKEY_LEN);
-	};
-	void SetAge(time_t age) { this->age = age; };
+    void SetKey(const string &key) { this->key = key; };
+    void AssignKey(const char *key)
+    {
+        this->key.assign(key, _SUVA_MAX_HOSTKEY_LEN);
+    };
+    void SetAge(time_t age) { this->age = age; };
 
-	bool HasExpired(uint32_t key_ttl);
+    bool HasExpired(uint32_t key_ttl);
 
 protected:
-	string key;
-	time_t age;
+    string key;
+    time_t age;
 };
 
 class svPublicRSAKey : public svObject
 {
 public:
-	svPublicRSAKey(RSA *key);
-	virtual ~svPublicRSAKey();
+    svPublicRSAKey(RSA *key);
+    virtual ~svPublicRSAKey();
 
-	bool HasExpired(uint32_t key_ttl);
-	RSA *GetKey(void) { return key; };
+    bool HasExpired(uint32_t key_ttl);
+    RSA *GetKey(void) { return key; };
 
 protected:
-	RSA *key;
-	struct timeval tv;
+    RSA *key;
+    struct timeval tv;
 };
 
 #endif // _SVCRYPTO_H
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

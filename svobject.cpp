@@ -46,7 +46,7 @@
 #include "svobject.h"
 
 svObject::svObject(const string &name)
-	: name(name)
+    : name(name)
 {
 }
 
@@ -56,7 +56,7 @@ svObject::~svObject()
 
 void svObject::DumpState(void) const
 {
-	svDebug("%s: no state information", name.c_str());
+    svDebug("%s: no state information", name.c_str());
 }
 
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

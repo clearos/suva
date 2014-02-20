@@ -80,54 +80,54 @@
 
 
 svThreadSignal::svThreadSignal(const sigset_t &signal_set)
-	: svThread("svThreadSignal"), signal_set(signal_set) { }
+    : svThread("svThreadSignal"), signal_set(signal_set) { }
 
 svThreadSignal::~svThreadSignal()
 {
-	pthread_kill(id, SIGTERM);
+    pthread_kill(id, SIGTERM);
 
-	Join();
+    Join();
 }
 
 void *svThreadSignal::Entry(void)
 {
-	pid_t pid;
-	int rc, sig, status;
+    pid_t pid;
+    int rc, sig, status;
 
 #ifndef __WIN32__
-	for ( ;; ) {
-		rc = sigwait(&signal_set, &sig);
-		if (rc != 0) {
-			svError("%s: sigwait: %s", name.c_str(), strerror(rc));
-			break;
-		}
-		svDebug("%s: %s", name.c_str(), strsignal(sig));
-		switch (sig) {
-		case SIGINT:
-		case SIGTERM:
-			svEventServer::GetInstance()->Dispatch(new svEventQuit);
-			return NULL;
-		case SIGHUP:
-			svEventServer::GetInstance()->Dispatch(
-				new svEventConfReload(NULL));
-			break;
-		case SIGUSR1:
-			svOutput::ToggleDebug();
-			break;
-		case SIGUSR2:
-			svEventServer::GetInstance()->Dispatch(
-				new svEventStateRequest());
-			break;
-		case SIGCHLD:
-			while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
-				svEventServer::GetInstance()->Dispatch(
-					new svEventChildExit(pid, status));
-			}
-			break;
-		}
-	}
+    for ( ;; ) {
+        rc = sigwait(&signal_set, &sig);
+        if (rc != 0) {
+            svError("%s: sigwait: %s", name.c_str(), strerror(rc));
+            break;
+        }
+        svDebug("%s: %s", name.c_str(), strsignal(sig));
+        switch (sig) {
+        case SIGINT:
+        case SIGTERM:
+            svEventServer::GetInstance()->Dispatch(new svEventQuit);
+            return NULL;
+        case SIGHUP:
+            svEventServer::GetInstance()->Dispatch(
+                new svEventConfReload(NULL));
+            break;
+        case SIGUSR1:
+            svOutput::ToggleDebug();
+            break;
+        case SIGUSR2:
+            svEventServer::GetInstance()->Dispatch(
+                new svEventStateRequest());
+            break;
+        case SIGCHLD:
+            while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+                svEventServer::GetInstance()->Dispatch(
+                    new svEventChildExit(pid, status));
+            }
+            break;
+        }
+    }
 #endif
-	return NULL;
+    return NULL;
 }
 
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

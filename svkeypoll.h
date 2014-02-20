@@ -32,68 +32,68 @@
 class svExKeyPollInvalidOrg : public runtime_error
 {
 public:
-	explicit svExKeyPollInvalidOrg(const string &org)
-		: runtime_error(org) { };
-	virtual ~svExKeyPollInvalidOrg() throw() { };
+    explicit svExKeyPollInvalidOrg(const string &org)
+        : runtime_error(org) { };
+    virtual ~svExKeyPollInvalidOrg() throw() { };
 };
 
 class svExKeyPollNoKeyServers : public runtime_error
 {
 public:
-	explicit svExKeyPollNoKeyServers(const string &org)
-		: runtime_error(org) { };
-	virtual ~svExKeyPollNoKeyServers() throw() { };
+    explicit svExKeyPollNoKeyServers(const string &org)
+        : runtime_error(org) { };
+    virtual ~svExKeyPollNoKeyServers() throw() { };
 };
 
 class svKeyPollResult : public svObject
 {
 public:
-	svKeyPollResult(uint8_t *digest, RSA *key);
-	virtual ~svKeyPollResult();
+    svKeyPollResult(uint8_t *digest, RSA *key);
+    virtual ~svKeyPollResult();
 
-	bool operator!=(uint8_t *digest)
-	{
-		if (memcmp(this->digest, digest, MD5_DIGEST_LENGTH))
-			return true;
-		return false;
-	};
+    bool operator!=(uint8_t *digest)
+    {
+        if (memcmp(this->digest, digest, MD5_DIGEST_LENGTH))
+            return true;
+        return false;
+    };
 
-	void AddPoint(void) { score++; };
+    void AddPoint(void) { score++; };
 
-	uint32_t GetScore(void) { return score; };
-	RSA *GetKey(void) { RSA *pk = key; key = NULL; return pk; };
+    uint32_t GetScore(void) { return score; };
+    RSA *GetKey(void) { RSA *pk = key; key = NULL; return pk; };
 
 protected:
-	uint32_t score;
-	uint8_t digest[MD5_DIGEST_LENGTH];
-	RSA *key;
+    uint32_t score;
+    uint8_t digest[MD5_DIGEST_LENGTH];
+    RSA *key;
 };
 
 class svThreadKeyPoll : public svThread
 {
 public:
-	svThreadKeyPoll(const string &org);
-	virtual ~svThreadKeyPoll();
+    svThreadKeyPoll(const string &org);
+    virtual ~svThreadKeyPoll();
 
-	virtual void *Entry(void);
+    virtual void *Entry(void);
 
-	void AddClient(svEventClient *c);
-	void BroadcastResult(svEventKeyPollResult *result);
+    void AddClient(svEventClient *c);
+    void BroadcastResult(svEventKeyPollResult *result);
 
 protected:
-	string dev;
-	string org;
-	string key_dir;
-	uint32_t ttl;
-	uint32_t threshold;
-	vector<svSocket *> skt;
-	uint32_t skt_count;
-	map<svEventClient *, svObject *> client;
-	uint8_t pkt_buffer[_SUVA_MAX_PACKET_SIZE];
-	vector<svKeyPollResult *> poll_result;
+    string dev;
+    string org;
+    string key_dir;
+    uint32_t ttl;
+    uint32_t threshold;
+    vector<svSocket *> skt;
+    uint32_t skt_count;
+    map<svEventClient *, svObject *> client;
+    uint8_t pkt_buffer[_SUVA_MAX_PACKET_SIZE];
+    vector<svKeyPollResult *> poll_result;
 
-	void AddPollResult(uint8_t *payload, size_t length);
+    void AddPollResult(uint8_t *payload, size_t length);
 };
 
 #endif // _SVKEYPOLL_H
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

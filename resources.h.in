@@ -19,3 +19,5 @@
 #define VER_COMPANYDOMAIN_STR       "@PACKAGE_URL@"
 
 #endif // RESOURCES_H
+
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

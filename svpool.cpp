@@ -65,22 +65,22 @@
 #include "svpool.h"
 
 svPoolClient::svPoolClient(svSocket *skt,
-	const string &name, const string &device, const string &org)
-	: svObject(name), skt(skt), device(device), org(org)
+    const string &name, const string &device, const string &org)
+    : svObject(name), skt(skt), device(device), org(org)
 {
-	gettimeofday(&tv, NULL);
+    gettimeofday(&tv, NULL);
 }
 
 svPoolClient::~svPoolClient()
 {
-	if (skt) delete skt;
+    if (skt) delete skt;
 }
 
 svSocket *svPoolClient::GetSocket(bool remove)
 {
-	if (!remove) return skt;
-	svSocket *s = skt; skt = NULL;
-	return s;
+    if (!remove) return skt;
+    svSocket *s = skt; skt = NULL;
+    return s;
 }
 
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

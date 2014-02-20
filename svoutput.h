@@ -33,32 +33,32 @@ using namespace std;
 
 enum svLogLevel
 {
-	svLOG_DEBUG,
-	svLOG_INFO,
-	svLOG_ERR,
+    svLOG_DEBUG,
+    svLOG_INFO,
+    svLOG_ERR,
 };
 
 class svOutput
 {
 public:
-	svOutput();
-	virtual ~svOutput();
+    svOutput();
+    virtual ~svOutput();
 
-	static void SetDebug(bool debug = true) { svOutput::debug = debug; };
-	static void ToggleDebug(void) { svOutput::debug = svOutput::debug ? false : true; };
-	static void OpenLogFile(const string &filename);
-	static void OpenSyslog(
-		const char *prefix, int32_t facility, bool debug);
-	static void OpenEventLog(void);
-	static void Printf(svLogLevel level, const char *format, va_list ap); 
+    static void SetDebug(bool debug = true) { svOutput::debug = debug; };
+    static void ToggleDebug(void) { svOutput::debug = svOutput::debug ? false : true; };
+    static void OpenLogFile(const string &filename);
+    static void OpenSyslog(
+        const char *prefix, int32_t facility, bool debug);
+    static void OpenEventLog(void);
+    static void Printf(svLogLevel level, const char *format, va_list ap); 
 
 protected:
-	static bool debug;
-	static int log_facility;
-	static pthread_mutex_t mutex;
-	static FILE *log_file;
+    static bool debug;
+    static int log_facility;
+    static pthread_mutex_t mutex;
+    static FILE *log_file;
 #ifdef __WIN32__
-	static HANDLE el_source;
+    static HANDLE el_source;
 #endif
 };
 
@@ -75,4 +75,4 @@ void svError(const char *format, ...);
 #define svTrace(s) svDebug(">>> TRACE: %s:%d: %s", __FILE__, __LINE__, s)
 
 #endif // _SVOUTPUT_H
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

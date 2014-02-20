@@ -34,16 +34,16 @@ using namespace std;
 class svObject
 {
 public:
-	svObject(const string &name);
-	virtual ~svObject();
+    svObject(const string &name);
+    virtual ~svObject();
 
-	const string &GetName(void) const { return name; };
+    const string &GetName(void) const { return name; };
 
-	virtual void DumpState(void) const;
+    virtual void DumpState(void) const;
 
 protected:
-	string name;
+    string name;
 };
 
 #endif // _SVOBJECT_H
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4

@@ -34,22 +34,22 @@ using namespace std;
 class svPoolClient : public svObject
 {
 public:
-	svPoolClient(svSocket *skt,
-		const string &name, const string &device, const string &org);
-	virtual ~svPoolClient();
+    svPoolClient(svSocket *skt,
+        const string &name, const string &device, const string &org);
+    virtual ~svPoolClient();
 
-	svSocket *GetSocket(bool remove = false);
-	const string &GetDevice(void) const { return device; };
-	const string &GetOrganization(void) const { return org; };
+    svSocket *GetSocket(bool remove = false);
+    const string &GetDevice(void) const { return device; };
+    const string &GetOrganization(void) const { return org; };
 
-	void SetSocket(svSocket *skt) { this->skt = skt; };
+    void SetSocket(svSocket *skt) { this->skt = skt; };
 
 protected:
-	svSocket *skt;
-	string device;
-	string org;
-	struct timeval tv;
+    svSocket *skt;
+    string device;
+    string org;
+    struct timeval tv;
 };
 
 #endif // _SVPOOL_H
-// vi: ts=4
+// vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4
