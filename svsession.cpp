@@ -631,8 +631,6 @@ void svSession::VpnAccept(void)
 
 void svSession::VpnConnect(void)
 {
-    //svDelay(retry_interval * 1000);
-
     struct timeval tv_retry, tv_now;
     gettimeofday(&tv_retry, NULL);
 
@@ -674,7 +672,7 @@ void svSession::VpnConnect(void)
             gettimeofday(&tv_retry, NULL);
             tv_retry.tv_sec += retry_interval;
 
-            if (skt_stl->IsConnected()) skt_stl->Close();
+            skt_stl->Close();
         }
     }
 }
