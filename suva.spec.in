@@ -6,7 +6,7 @@
 
 Name: @PACKAGE_TARNAME@
 Version: @PACKAGE_VERSION@
-Release: 7%{dist}
+Release: 8%{dist}
 Vendor: ClearFoundation
 Group: System Environment/Daemons
 License: GPL
@@ -58,6 +58,7 @@ Report bugs to: @PACKAGE_BUGREPORT@
 # Build
 %prep
 %setup -q
+./autogen.sh
 %{configure}
 
 %build
@@ -142,6 +143,7 @@ fi
 %attr(0755,root,root) %{_bindir}/mkrsa.sh
 %attr(0755,root,root) %{_bindir}/mkhost.sh
 %attr(0755,root,root) %{_bindir}/setdev.sh
+%attr(0755,root,root) %{_bindir}/sv-kschk
 %attr(0755,root,root) %{_sbindir}/suvad
 %attr(0755,root,root) %{_sbindir}/suvad-server
 %attr(0755,root,root) %{_sysconfdir}/init.d/suvad-server
@@ -178,6 +180,7 @@ fi
 %{_libdir}/libisfd.la
 %attr(0755,root,root) %{_bindir}/mkrsa.sh
 %attr(0755,root,root) %{_sbindir}/suvad-server
+%attr(0755,root,root) %{_bindir}/sv-kschk
 #%attr(0755,root,root) %{_sysconfdir}/init.d/suvad-server
 #%config(noreplace) %attr(0600,suva,suva) %{_sysconfdir}/suvad.conf
 
