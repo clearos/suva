@@ -3,9 +3,8 @@
 
 AC_PREREQ([2.65])
 AC_INIT([suva], [3.1],
-	[http://www.clearfoundation.com/docs/developer/bug_tracker/],
-	[suva], [http://www.clearfoundation.com])
-AM_INIT_AUTOMAKE([suva], [3.1])
+	[http://www.clearfoundation.com/docs/developer/bug_tracker/])
+AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([svconf.h])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([suva.spec])

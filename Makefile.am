@@ -7,7 +7,12 @@ libsuva_a_SOURCES = svconf.cpp svcrypto.cpp svexec.cpp \
 	svservice.cpp svsession.cpp svsignal.cpp svsocket.cpp \
 	svthread.cpp svutil.cpp
 
+bin_PROGRAMS = suva-kschk
 sbin_PROGRAMS = suvad suvad-server
+
+suva_kschk_SOURCES = util/sv-kschk.cpp
+suva_kschk_LDADD = libsuva.a $(EXTRA_LIBS)
+
 suvad_SOURCES = svclient.cpp
 if USE_RESOURCES_RC
 suvad_DEPENDENCIES = libsuva.a resources.o
