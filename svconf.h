@@ -438,7 +438,8 @@ protected:
 
 enum svConfDatabaseType
 {
-    svDT_BDB = 1,
+    svDT_NULL,
+    svDT_BDB,
     svDT_PGSQL,
     svDT_MYSQL
 };

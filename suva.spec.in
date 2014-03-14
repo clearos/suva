@@ -6,7 +6,7 @@
 
 Name: @PACKAGE_TARNAME@
 Version: @PACKAGE_VERSION@
-Release: 8%{dist}
+Release: 9%{dist}
 Vendor: ClearFoundation
 Group: System Environment/Daemons
 License: GPL

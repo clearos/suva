@@ -865,7 +865,7 @@ void svXmlParser::ParseElementOpen(svXmlTag *tag)
             ParseError("Missing required parameter: db");
 
         svConfDatabase *db;
-        svConfDatabaseType type;
+        svConfDatabaseType type = svDT_NULL;
         string db_name;
         if (!strcasecmp(
             tag->GetParamValue("type").c_str(), "pgsql")) {
@@ -1452,6 +1452,7 @@ sv_conf_save_next_org:
                 i->first != svDT_MYSQL) continue;
             string type;
             switch (i->first) {
+            case svDT_NULL:
             case svDT_BDB:
                 break;
             case svDT_PGSQL:
