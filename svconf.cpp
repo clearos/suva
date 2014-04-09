@@ -936,7 +936,7 @@ void svXmlParser::ParseElementClose(svXmlTag *tag)
         if (!text.size())
             ParseError("Missing value for tag: " + tag->GetName());
 
-        conf->ParseLogFacility(text);
+        conf->log_facility = conf->ParseLogFacility(text);
     }
     else if ((*tag) == "log-file") {
         if (!stack.size() || (*stack.back()) != "svconf")
