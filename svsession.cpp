@@ -472,7 +472,7 @@ void svSession::SessionRun(void)
 
         skt_set.Reset();
 
-        if ((buffer_length = skt_raw->GetBufferLength() > 0))
+        if ((buffer_length = skt_raw->GetBufferLength()) > 0)
             skt_set.SelectForWrite(skt_raw);
 
         if (buffer_length < _SUVA_SOCKET_MAX_BUFFER)
