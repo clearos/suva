@@ -204,27 +204,12 @@ void svExec::Terminate(void)
         skt = NULL;
     }
 
-    struct timeval tv_now, tv_timeout, tv_last_kill;
-    memset(&tv_last_kill, 0, sizeof(struct timeval));
+    struct timeval tv_now, tv_timeout;
     gettimeofday(&tv_timeout, NULL);
     tv_timeout.tv_sec += _SUVA_APP_WAIT;
 
     svEvent *event;
     for ( ;; ) {
-        gettimeofday(&tv_now, NULL);
-
-        if (tv_now.tv_sec - tv_last_kill.tv_sec >= 1) {
-            svDebug("%s: Killing application: %d",
-                name.c_str(), pid);
-
-            if (tv_now.tv_sec > tv_timeout.tv_sec)
-                kill(pid, SIGKILL);
-            else
-                kill(pid, SIGTERM);
-
-            gettimeofday(&tv_last_kill, NULL);
-        }
-
         while ((event = PopWaitEvent(1000))) {
             switch (event->GetId()) {
             case svEVT_QUIT:
@@ -246,8 +231,10 @@ void svExec::Terminate(void)
             delete event;
         }
 
-        if (tv_now.tv_sec > tv_timeout.tv_sec + _SUVA_APP_WAIT) {
-            svError("%s: Application exit time-out: %d",
+        gettimeofday(&tv_now, NULL);
+        if (tv_now.tv_sec > tv_timeout.tv_sec) {
+            kill(pid, SIGTERM);
+            svError("%s: Timed-out waiting on application to exit: %d",
                 name.c_str(), pid);
             break;
         }
