@@ -36,6 +36,7 @@
 #include <stdexcept>
 #include <vector>
 #include <map>
+#include <queue>
 
 #include <sys/time.h>
 
@@ -697,6 +698,8 @@ void svSessionClient::KeyChange(void)
     skt_stl->WritePacket(pkt_key);
 
     gettimeofday(&tv_key_change, NULL);
+
+    svDebug("%s: %s", name.c_str(), __PRETTY_FUNCTION__);
 }
 
 void svSessionClient::Authenticate(void)
@@ -1100,6 +1103,8 @@ void svSessionServer::KeyChange(void)
 
     crypto->SetAESKey(svAES_ENCRYPT, dst);
     crypto->SetAESKey(svAES_DECRYPT, dst);
+
+    svDebug("%s: %s", name.c_str(), __PRETTY_FUNCTION__);
 }
 
 void svSessionServer::Authenticate(void)

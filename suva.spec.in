@@ -6,7 +6,7 @@
 
 Name: @PACKAGE_TARNAME@
 Version: @PACKAGE_VERSION@
-Release: 9%{dist}
+Release: 10%{dist}
 Vendor: ClearFoundation
 Group: System Environment/Daemons
 License: GPL
@@ -14,6 +14,9 @@ Packager: ClearFoundation
 Source: %{name}-%{version}.tar.gz
 BuildRoot: /var/tmp/%{name}-%{version}
 Requires: /usr/sbin/useradd /sbin/service
+BuildRequires: autoconf >= 2.63
+BuildRequires: automake
+BuildRequires: libtool
 BuildRequires: expat-devel
 BuildRequires: openssl-devel
 Summary: Web Service Client/Server
@@ -143,7 +146,6 @@ fi
 %attr(0755,root,root) %{_bindir}/mkrsa.sh
 %attr(0755,root,root) %{_bindir}/mkhost.sh
 %attr(0755,root,root) %{_bindir}/setdev.sh
-%attr(0755,root,root) %{_bindir}/suva-kschk
 %attr(0755,root,root) %{_sbindir}/suvad
 %attr(0755,root,root) %{_sbindir}/suvad-server
 %attr(0755,root,root) %{_sysconfdir}/init.d/suvad-server
@@ -180,7 +182,6 @@ fi
 %{_libdir}/libisfd.la
 %attr(0755,root,root) %{_bindir}/mkrsa.sh
 %attr(0755,root,root) %{_sbindir}/suvad-server
-%attr(0755,root,root) %{_bindir}/suva-kschk
 #%attr(0755,root,root) %{_sysconfdir}/init.d/suvad-server
 #%config(noreplace) %attr(0600,suva,suva) %{_sysconfdir}/suvad.conf
 

@@ -36,6 +36,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <queue>
 
 #include <sys/types.h>
 #include <sys/time.h>

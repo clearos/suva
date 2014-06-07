@@ -35,6 +35,7 @@
 #include <stdexcept>
 #include <vector>
 #include <map>
+#include <queue>
 
 #include <sys/time.h>
 
@@ -317,21 +318,20 @@ void svSocket::Write(uint8_t *data, ssize_t &length)
     struct timeval tv;
     uint8_t *ptr = data;
     ssize_t bytes_wrote, bytes_left = length;
-#ifdef USE_HEAVY_DEBUG
-    svDebug("%s: Write: %d", name.c_str(), length);
-    svHexDump(stderr, data, length);
-#endif
-    if (flags & SVSKT_FLAG_RAW) {
-        if (!buffer) buffer = new svSocketBuffer();
-        bytes_left += buffer->GetLength();
-        if (data && length) buffer->Push(data, length);
-        if (!bytes_left) return;
-        ptr = buffer->Pop(&bytes_left);
-    }
 
+#ifdef USE_HEAVY_DEBUG
     if (!ptr || !bytes_left)
         throw svExSocketInvalidParam("data or length");
 
+    svDebug("%s: Write: %d", name.c_str(), length);
+    svHexDump(stderr, data, length);
+#endif
+
+    if (flags & SVSKT_FLAG_RAW) {
+        buffer->Push(data, length);
+        ptr = buffer->Pop(&length);
+    }
+    
     for (length = 0; bytes_left > 0; ) {
         if (type != svST_VPN)
             bytes_wrote = send(sd, (const char *)ptr, bytes_left, 0);
@@ -366,6 +366,15 @@ void svSocket::Write(uint8_t *data, ssize_t &length)
 
     if (flags & SVSKT_FLAG_RAW && bytes_left > 0)
         buffer->Push(ptr, bytes_left);
+}
+
+void svSocket::SetRaw(bool enable)
+{
+    if (enable) {
+        flags |= SVSKT_FLAG_RAW;
+        if (!buffer) buffer = new svSocketBuffer();
+    }
+    else flags &= ~SVSKT_FLAG_RAW;
 }
 
 void svSocket::WritePacket(svPacket &pkt)
@@ -1071,71 +1080,48 @@ int svSocketSet::Select(uint32_t timeout)
 }
 
 svSocketBuffer::svSocketBuffer()
-    : svObject("svSocketBuffer"), pages(1), length(0),
-    prof_memcpy(0), prof_realloc(0), prof_memmove(0),
-    prof_push(0), prof_pop(0), prof_max_length(0)
-{
-    page_size = svGetPageSize();
-    ptr = buffer = (uint8_t *)realloc(NULL, page_size * pages);
-}
+    : svObject("svSocketBuffer"), length(0) { }
 
 svSocketBuffer::~svSocketBuffer()
 {
-    if (buffer) free(buffer);
-    svDebug("svSocketBuffer: pages: %d, push: %d, pop: %d, "
-        "max_length: %d, realloc: %d, memmove: %d, memcpy: %d",
-        pages, prof_push, prof_pop, prof_max_length,
-        prof_realloc, prof_memmove, prof_memcpy);
 }
 
 void svSocketBuffer::Push(uint8_t *data, ssize_t data_size)
 {
-    prof_push++;
-    if (data_size > prof_max_length) prof_max_length = data_size;
-    if (ptr != buffer) {
-        ssize_t offset = ssize_t(ptr - buffer);
-        if (pages * page_size - (offset + length) >= data_size) {
-            prof_memcpy++;
-            memcpy((void *)(ptr + length), (void *)data, data_size);
-            length += data_size;
-            return;
-        }
-        if (length) {
-            prof_memmove++;
-            memmove((void *)buffer, (void *)ptr, length);
-        }
-        ptr = buffer;
-    }
-    while (length + data_size > pages * page_size) {
-        pages++;
-        prof_realloc++;
-        ptr = buffer = (uint8_t *)realloc(buffer, pages * page_size);
-    }
-    prof_memcpy++;
-    memcpy((void *)(ptr + length), (void *)data, data_size);
+    struct chunk *p = new struct chunk;
+    p->length = data_size;
+    p->data = new uint8_t[data_size];
+    memcpy(p->data, data, data_size);
+    buffer.push(p);
     length += data_size;
 }
 
 uint8_t *svSocketBuffer::Pop(ssize_t *data_size)
 {
+    struct chunk *p;
+    uint8_t *data;
+
     if (data_size == NULL) {
-        if (length) {
-            svError("%s: Cleared buffer: %d bytes",
-                name.c_str(), length);
-            length = 0;
-            ptr = buffer;
+
+        while (!buffer.empty()) {
+            p = buffer.front();
+            delete p->data;
+            delete p;
+            buffer.pop();
         }
+
+        length = 0;
         return NULL;
     }
 
-    prof_pop++;
-    uint8_t *data = NULL;
-    if (*data_size > length) *data_size = length;
-    if (length) {
-        data = ptr;
-        length -= *data_size;
-        ptr += *data_size;
-    }
+    p = buffer.front();
+    buffer.pop();
+
+    length -= p->length;
+    *data_size = p->length;
+    data = p->data;
+    delete p;
+
     return data;
 }
 

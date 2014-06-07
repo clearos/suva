@@ -35,6 +35,7 @@
 #include <stdexcept>
 #include <map>
 #include <vector>
+#include <queue>
 
 #include <sys/time.h>
 
