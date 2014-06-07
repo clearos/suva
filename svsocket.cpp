@@ -330,6 +330,7 @@ void svSocket::Write(uint8_t *data, ssize_t &length)
     if (flags & SVSKT_FLAG_RAW) {
         buffer->Push(data, length);
         ptr = buffer->Pop(&length);
+        bytes_left = length;
     }
     
     for (length = 0; bytes_left > 0; ) {
@@ -935,7 +936,7 @@ svSocketPair::svSocketPair() : svSocketInet()
     sd = sp[0];
     sp[0] = _SUVA_SOCKET_INVALID;
     SetNonBlockingMode();
-    flags = SVSKT_FLAG_RAW;
+    SetRaw();
     state = svSS_CONNECTED;
     name = "svSocketPair";
 }
@@ -1105,7 +1106,7 @@ uint8_t *svSocketBuffer::Pop(ssize_t *data_size)
 
         while (!buffer.empty()) {
             p = buffer.front();
-            delete p->data;
+            delete [] p->data;
             delete p;
             buffer.pop();
         }
