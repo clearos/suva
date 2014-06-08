@@ -468,6 +468,9 @@ protected:
 
     ssize_t length;
     queue<struct chunk *> buffer;
+
+    int pages;
+    uint8_t *local_data;
 };
 
 #endif // _SVSOCKET_H

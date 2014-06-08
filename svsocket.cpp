@@ -1081,10 +1081,15 @@ int svSocketSet::Select(uint32_t timeout)
 }
 
 svSocketBuffer::svSocketBuffer()
-    : svObject("svSocketBuffer"), length(0) { }
+    : svObject("svSocketBuffer"), length(0), pages(1)
+{
+    local_data = (uint8_t *)realloc(NULL, getpagesize() * pages);
+}
 
 svSocketBuffer::~svSocketBuffer()
 {
+    free(local_data);
+    Pop(NULL);
 }
 
 void svSocketBuffer::Push(uint8_t *data, ssize_t data_size)
@@ -1100,7 +1105,6 @@ void svSocketBuffer::Push(uint8_t *data, ssize_t data_size)
 uint8_t *svSocketBuffer::Pop(ssize_t *data_size)
 {
     struct chunk *p;
-    uint8_t *data;
 
     if (data_size == NULL) {
 
@@ -1120,10 +1124,17 @@ uint8_t *svSocketBuffer::Pop(ssize_t *data_size)
 
     length -= p->length;
     *data_size = p->length;
-    data = p->data;
+
+    while (p->length > getpagesize() * pages) {
+        pages++;
+        local_data = (uint8_t *)realloc((void *)local_data, getpagesize() * pages);
+    }
+    memcpy(local_data, p->data, p->length);
+   
+    delete [] p->data; 
     delete p;
 
-    return data;
+    return local_data;
 }
 
 // vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4
