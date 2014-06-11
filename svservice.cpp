@@ -36,7 +36,6 @@
 #include <stdexcept>
 #include <vector>
 #include <map>
-#include <queue>
 
 #include <unistd.h>
 #include <stdio.h>

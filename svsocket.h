@@ -236,8 +236,11 @@ public:
     };
     void SetConnected(void) { state = svSS_CONNECTED; };
 
-    void SetRaw(bool enable = true);
-
+    void SetRaw(bool enable = true)
+    {
+        if (enable) flags |= SVSKT_FLAG_RAW;
+        else flags &= ~SVSKT_FLAG_RAW;
+    };
     void SetFrontDoor(bool enable = true)
     {
         if (enable) flags |= SVSKT_FLAG_SFD;
@@ -459,18 +462,17 @@ public:
     ssize_t GetLength(void) { return length; };
 
 protected:
-
-    struct chunk
-    {
-        uint8_t *data;
-        ssize_t length;
-    };
-
+    ssize_t pages;
+    ssize_t page_size;
+    uint8_t *ptr;
+    uint8_t *buffer;
     ssize_t length;
-    queue<struct chunk *> buffer;
-
-    int pages;
-    uint8_t *local_data;
+    ssize_t prof_memcpy;
+    ssize_t prof_realloc;
+    ssize_t prof_memmove;
+    ssize_t prof_push;
+    ssize_t prof_pop;
+    ssize_t prof_max_length;
 };
 
 #endif // _SVSOCKET_H
