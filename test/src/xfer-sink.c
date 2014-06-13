@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
 		//fflush(stdout);
 		total += bytes;
 		fwrite(buffer, 1, bytes, fh);
+		fflush(fh);
 	}
 	//fprintf(stdout, "\n%ld bytes read\n", total);
 	fclose(fh);
