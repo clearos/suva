@@ -6,7 +6,7 @@
 
 Name: @PACKAGE_TARNAME@
 Version: @PACKAGE_VERSION@
-Release: 10%{dist}
+Release: 11%{dist}
 Vendor: ClearFoundation
 Group: System Environment/Daemons
 License: GPL
@@ -19,33 +19,33 @@ BuildRequires: automake
 BuildRequires: libtool
 BuildRequires: expat-devel
 BuildRequires: openssl-devel
-Summary: Web Service Client/Server
+Summary: Cloud Service Client/Server
 %description
 http://www.clearcenter.com
 Report bugs to: @PACKAGE_BUGREPORT@
 
 %package sdn
-Summary: Web Services Delivery Network
+Summary: Cloud Services Delivery Network
 Group: System Environment/Base
-BuildRequires: db4-devel
+BuildRequires: libdb-devel
 BuildRequires: postgresql-devel
 %description sdn
 http://www.clearcenter.com
 Report bugs to: @PACKAGE_BUGREPORT@
 
 %package client
-Summary: Web Services Client
+Summary: Cloud Services Client
 Group: System Environment/Base
 %description client
 http://www.clearcenter.com
 Report bugs to: @PACKAGE_BUGREPORT@
 
 %package server
-Summary: Web Services Server
+Summary: Cloud Services Server
 Group: System Environment/Base
-BuildRequires: db4-devel
-BuildRequires: mysql-devel
-#BuildRequires: postgresql-devel
+BuildRequires: libdb-devel
+#BuildRequires: mysql-devel
+BuildRequires: postgresql-devel
 %description server
 http://www.clearcenter.com
 Report bugs to: @PACKAGE_BUGREPORT@
@@ -77,7 +77,10 @@ make -C plugin install DESTDIR=$RPM_BUILD_ROOT
 make -C plugin/scl install DESTDIR=$RPM_BUILD_ROOT
 make -C plugin/isfd install DESTDIR=$RPM_BUILD_ROOT
 
+mkdir -p -m 755 $RPM_BUILD_ROOT%{_sysconfdir}
+%if "0%{dist}" == "0.v6"
 mkdir -p -m 755 $RPM_BUILD_ROOT%{_sysconfdir}/init.d
+%endif
 mkdir -p -m 755 $RPM_BUILD_ROOT%{_var}/run/suvad
 mkdir -p -m 750 $RPM_BUILD_ROOT%{_var}/lib/suva/clearcenter.com
 
@@ -88,8 +91,14 @@ cp util/scripts/mkhost.sh $RPM_BUILD_ROOT%{_bindir}
 cp util/scripts/mkrsa.sh $RPM_BUILD_ROOT%{_bindir}
 
 cp config/%{vendor_config} $RPM_BUILD_ROOT%{_sysconfdir}/suvad.conf
+
+%if "0%{dist}" == "0.v6"
 cp config/init.d/%{vendor_sysvinit} $RPM_BUILD_ROOT%{_sysconfdir}/init.d/suvad
 cp config/init.d/%{vendor_sysvinit}-server $RPM_BUILD_ROOT%{_sysconfdir}/init.d/suvad-server
+%else
+install -D -m 644 config/systemd/suva.service %{buildroot}/lib/systemd/system/suva.service
+install -D -m 644 config/tmpfiles.d/suva.conf %{buildroot}/%{_tmpfilesdir}/suva.conf
+%endif
 
 # Add suva system user
 %pre sdn
@@ -117,7 +126,28 @@ if [ -d "/usr/local/suva" -a ! -d "/usr/local/suva/bin" ]; then
     chmod a+rx $suvactl
 fi
 
-/sbin/service suvad condrestart
+%if "0%{dist}" == "0.v6"
+/sbin/chkconfig --add suvad >/dev/null 2>&1 || :
+/sbin/service suvad condrestart >/dev/null 2>&1 || :
+%else
+/sbin/chkconfig --add suva >/dev/null 2>&1 || :
+/usr/bin/systemctl enable suva.service -q
+/usr/bin/systemctl reload-or-restart suva.service -q
+%endif
+
+# Pre un-install
+%preun
+%if "0%{dist}" == "0.v6"
+if [ "$1" = 0 ]; then
+    /sbin/chkconfig --del suvad
+fi
+%else
+if [ "$1" = 0 ]; then
+    /sbin/chkconfig --del suva
+    /usr/bin/systemctl stop suva.service -q
+    /usr/bin/systemctl disable suva.service -q
+fi
+%endif
 
 # Post un-install
 %postun
@@ -148,7 +178,9 @@ fi
 %attr(0755,root,root) %{_bindir}/setdev.sh
 %attr(0755,root,root) %{_sbindir}/suvad
 %attr(0755,root,root) %{_sbindir}/suvad-server
+%if "0%{dist}" == "0.v6"
 %attr(0755,root,root) %{_sysconfdir}/init.d/suvad-server
+%endif
 #%config(noreplace) %attr(0600,suva,suva) %{_sysconfdir}/suvad.conf
 
 # Client files
@@ -161,7 +193,12 @@ fi
 %attr(0755,root,root) %{_bindir}/setdev.sh
 %attr(0755,root,root) %{_bindir}/setkey.sh
 %attr(0755,root,root) %{_sbindir}/suvad
+%if "0%{dist}" == "0.v6"
 %attr(0755,root,root) %{_sysconfdir}/init.d/suvad
+%else
+%attr(755,root,root) /lib/systemd/system
+%attr(755,root,root) %{_tmpfilesdir}
+%endif
 %config(noreplace) %attr(0600,suva,suva) %{_sysconfdir}/suvad.conf
 
 # Server files
