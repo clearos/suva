@@ -4,8 +4,8 @@ After=syslog.target network.target
 
 [Service]
 Type=forking
-PIDFile=/var/run/suva/suvad.pid
-User=clearsync
+PIDFile=/var/run/suvad/suvad.pid
+User=suva
 ExecStart=/usr/sbin/suvad -c /etc/suvad.conf
 Restart=on-abort
 
