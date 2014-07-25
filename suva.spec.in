@@ -17,6 +17,7 @@ Requires: /usr/sbin/useradd /sbin/service
 BuildRequires: autoconf >= 2.63
 BuildRequires: automake
 BuildRequires: libtool
+BuildRequires: systemd
 BuildRequires: expat-devel
 BuildRequires: openssl-devel
 Summary: Cloud Service Client/Server
