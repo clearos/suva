@@ -1,4 +1,4 @@
-CFLAGS:=-g -O2 -pipe -std=c99
+CFLAGS:=-g -O2 -pipe -std=c99 -static
 
 all:
 	$(CC) $(CFLAGS) -c sha1.c -o sha1.o

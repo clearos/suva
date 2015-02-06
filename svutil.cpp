@@ -43,18 +43,22 @@
 #endif
 
 #include "svutil.h"
+#include "svoutput.h"
 
 // Illegal ascii characters (+ !isprint())
-static int svIllegalAscii[12] = {
+#define _SV_ILLEGAL_ASCII   12
+static int svIllegalAscii[_SV_ILLEGAL_ASCII] = {
     /* ! */ 0x21, /* " */ 0x22, /* % */ 0x25, /* & */ 0x26, /* ' */ 0x27,
     /* * */ 0x2A, /* : */ 0x3A, /* < */ 0x3C, /* > */ 0x3E, /* \ */ 0x5C,
     /* ` */ 0x60, /* ~ */ 0x7E
 };
 
-inline bool svIsLegalAscii(int c)
+bool svIsLegalAscii(int c)
 {
-    for (size_t i = 0; i < sizeof(svIllegalAscii); i++)
-        if (c == svIllegalAscii[i]) return false;
+    for (size_t i = 0; i < _SV_ILLEGAL_ASCII; i++) {
+        if (c == svIllegalAscii[i])
+            return false;
+    }
     if (!isprint(c)) return false;
     return true;
 }

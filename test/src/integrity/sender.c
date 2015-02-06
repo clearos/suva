@@ -31,6 +31,8 @@ int main(int argc, char *argv[])
 
         fprintf(stderr, "%6ld: ", pkt.seq); print_hash(pkt.hash); fputc('\n', stderr);
     }
+
+    return 0;
 }
 
 // vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4
