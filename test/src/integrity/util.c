@@ -13,7 +13,7 @@ void fill(struct packet_t *pkt)
 //    uint8_t c = (uint8_t)pkt->seq;
 //    for (int i = 0; i < BLOCKSIZE; i++) pkt->data[i] = c++;
     uint8_t c = 0xFF;
-    for (int i = 0; i < BLOCKSIZE; i++) pkt->data[i] = c;
+    memset(pkt->data, c, BLOCKSIZE);
 }
 
 uint8_t *hash(struct packet_t *pkt, sha1 *ctx)
