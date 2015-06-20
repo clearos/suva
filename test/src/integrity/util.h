@@ -8,6 +8,8 @@
 #include "sha1.h"
 #include "config.h"
 
+#define LOG_FILE    "/tmp/suva-integrity.log"
+
 void fill(struct packet_t *pkt);
 uint8_t *hash(struct packet_t *pkt, sha1 *ctx);
 void verify(struct packet_t *pkt);

@@ -8,6 +8,9 @@
 #include "sha1.h"
 #include "config.h"
 
+FILE *logfile = NULL;
+const char *device_id = NULL;
+
 void fill(struct packet_t *pkt)
 {
 //    uint8_t c = (uint8_t)pkt->seq;
@@ -38,13 +41,13 @@ void verify(struct packet_t *pkt)
         sprintf(p, "%02x", sha1_hash[i]);
 #endif
     if (memcmp(sha1_hash, pkt->hash, SHA1_HASH_LENGTH))
-        fprintf(stderr, "%6ld: Corrupt data.\n", pkt->seq);
+        fprintf(logfile, "%s: %6ld: Corrupt data.\n", device_id, pkt->seq);
 }
 
 void print_hash(const uint8_t *sha1_hash)
 {
     for (int i = 0; i < SHA1_HASH_LENGTH; i++)
-        fprintf(stderr, "%02x", sha1_hash[i]);
+        fprintf(logfile, "%s: %02x", device_id, sha1_hash[i]);
 }
 
 // vi: expandtab shiftwidth=4 softtabstop=4 tabstop=4
