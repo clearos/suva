@@ -43,3 +43,6 @@
 /suva-*.tar.gz
 /test/src/generate
 /test/src/xfer-sink
+/Makefile
+*.src.rpm
+*.tar.gz
