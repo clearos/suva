@@ -72,13 +72,13 @@ AC_SUBST([EXTRA_LIBS])
 COMMON_LIBS=$LIBS
 LIBS=
 AC_CHECK_LIB([db], [db_env_create])
-dnl AC_CHECK_LIB([pq], [PQconnectdb])
+AC_CHECK_LIB([pq], [PQconnectdb])
 
-LDFLAGS="$LDFLAGS -L/usr/lib64/mysql"
-LIBS="$LIBS `/usr/lib64/mysql/mysql_config --libs`"
-CFLAGS="$CFLAGS `/usr/lib64/mysql/mysql_config --cflags`"
+#LDFLAGS="$LDFLAGS -L/usr/lib64/mysql"
+#LIBS="$LIBS `/usr/lib64/mysql/mysql_config --libs`"
+#CFLAGS="$CFLAGS `/usr/lib64/mysql/mysql_config --cflags`"
 
-AC_CHECK_LIB([mysqlclient], [mysql_real_connect])
+#AC_CHECK_LIB([mysqlclient], [mysql_real_connect])
 
 SERVER_LIBS=$LIBS
 LIBS=$COMMON_LIBS

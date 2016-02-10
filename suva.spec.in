@@ -6,14 +6,13 @@
 
 Name: @PACKAGE_TARNAME@
 Version: @PACKAGE_VERSION@
-Release: 14%{dist}
+Release: 15%{dist}
 Vendor: ClearFoundation
 Group: System Environment/Daemons
 License: GPL
 Packager: ClearFoundation
 Source: %{name}-%{version}.tar.gz
 BuildRoot: /var/tmp/%{name}-%{version}
-Requires: /usr/sbin/useradd /sbin/service
 BuildRequires: autoconf >= 2.63
 BuildRequires: automake
 BuildRequires: libtool
@@ -28,6 +27,7 @@ Report bugs to: @PACKAGE_BUGREPORT@
 %package sdn
 Summary: Cloud Services Delivery Network
 Group: System Environment/Base
+Requires: /usr/sbin/useradd /sbin/service
 BuildRequires: libdb-devel
 BuildRequires: postgresql-devel
 %description sdn
@@ -37,6 +37,7 @@ Report bugs to: @PACKAGE_BUGREPORT@
 %package client
 Summary: Cloud Services Client
 Group: System Environment/Base
+Requires: /usr/sbin/useradd /sbin/service
 %description client
 http://www.clearcenter.com
 Report bugs to: @PACKAGE_BUGREPORT@
@@ -44,6 +45,7 @@ Report bugs to: @PACKAGE_BUGREPORT@
 %package server
 Summary: Cloud Services Server
 Group: System Environment/Base
+Requires: /usr/sbin/useradd /sbin/service
 BuildRequires: libdb-devel
 #BuildRequires: mysql-devel
 BuildRequires: postgresql-devel
