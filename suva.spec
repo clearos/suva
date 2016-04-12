@@ -6,7 +6,7 @@
 
 Name: suva
 Version: 3.1
-Release: 15%{dist}
+Release: 16%{dist}
 Vendor: ClearFoundation
 Group: System Environment/Daemons
 License: GPL
@@ -19,6 +19,7 @@ BuildRequires: libtool
 BuildRequires: systemd
 BuildRequires: expat-devel
 BuildRequires: openssl-devel
+%{?systemd_requires}
 Summary: Cloud Service Client/Server
 %description
 http://www.clearcenter.com
@@ -99,7 +100,7 @@ cp config/%{vendor_config} $RPM_BUILD_ROOT%{_sysconfdir}/suvad.conf
 cp config/init.d/%{vendor_sysvinit} $RPM_BUILD_ROOT%{_sysconfdir}/init.d/suvad
 cp config/init.d/%{vendor_sysvinit}-server $RPM_BUILD_ROOT%{_sysconfdir}/init.d/suvad-server
 %else
-install -D -m 644 config/systemd/suva.service %{buildroot}/lib/systemd/system/suva.service
+install -D -m 644 config/systemd/suva.service %{buildroot}/%{_unitdir}/suva.service
 install -D -m 644 config/tmpfiles.d/suva.conf %{buildroot}/%{_tmpfilesdir}/suva.conf
 %endif
 
@@ -199,8 +200,8 @@ fi
 %if "0%{dist}" == "0.v6"
 %attr(0755,root,root) %{_sysconfdir}/init.d/suvad
 %else
-%attr(755,root,root) /lib/systemd/system
-%attr(755,root,root) %{_tmpfilesdir}
+%attr(0644,root,root) %{_unitdir}/suva.service
+%attr(0644,root,root) %{_tmpfilesdir}/suva.conf
 %endif
 %config(noreplace) %attr(0600,suva,suva) %{_sysconfdir}/suvad.conf
 
