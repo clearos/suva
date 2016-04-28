@@ -44,7 +44,7 @@ void sfd_unload(void)
 struct scl_open_t
 {
     unsigned int ttl;
-    unsigned long port;
+    unsigned int port;
     char dev[MAX_DEV];
     char host[MAX_HOST];
     char organization[MAX_ORG];
