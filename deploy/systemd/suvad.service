@@ -6,7 +6,7 @@ After=syslog.target network.target
 Type=forking
 PIDFile=/var/run/suvad/suvad.pid
 User=suva
-ExecStart=/usr/sbin/suvad -c /etc/suvad.conf
+ExecStart=/usr/sbin/suvad -c /etc/suvad.conf -p /var/run/suvad/suvad.pid
 Restart=on-abort
 
 [Install]

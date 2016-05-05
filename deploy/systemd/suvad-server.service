@@ -1,0 +1,13 @@
+[Unit]
+Description=Cloud Services Daemon
+After=syslog.target network.target
+
+[Service]
+Type=forking
+PIDFile=/var/run/suvad/suvad-server.pid
+User=suva
+ExecStart=/usr/sbin/suvad-server -c /etc/suvad-server.conf -p /var/run/suvad/suvad-server.pid
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

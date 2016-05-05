@@ -1,12 +1,8 @@
 # Suva RPM spec
 
-# Default vendor configuration file
-%define vendor_config suvad.conf
-%define vendor_sysvinit suvad
-
 Name: @PACKAGE_TARNAME@
 Version: @PACKAGE_VERSION@
-Release: 16%{dist}
+Release: 17%{dist}
 Vendor: ClearFoundation
 Group: System Environment/Daemons
 License: GPL
@@ -22,16 +18,6 @@ BuildRequires: openssl-devel
 %{?systemd_requires}
 Summary: Cloud Service Client/Server
 %description
-http://www.clearcenter.com
-Report bugs to: @PACKAGE_BUGREPORT@
-
-%package sdn
-Summary: Cloud Services Delivery Network
-Group: System Environment/Base
-Requires: /usr/sbin/useradd /sbin/service
-BuildRequires: libdb-devel
-BuildRequires: postgresql-devel
-%description sdn
 http://www.clearcenter.com
 Report bugs to: @PACKAGE_BUGREPORT@
 
@@ -94,24 +80,25 @@ cp util/scripts/setkey.sh $RPM_BUILD_ROOT%{_bindir}
 cp util/scripts/mkhost.sh $RPM_BUILD_ROOT%{_bindir}
 cp util/scripts/mkrsa.sh $RPM_BUILD_ROOT%{_bindir}
 
-cp config/%{vendor_config} $RPM_BUILD_ROOT%{_sysconfdir}/suvad.conf
+cp deploy/suvad.conf $RPM_BUILD_ROOT%{_sysconfdir}/suvad.conf
+cp deploy/suvad-server.conf $RPM_BUILD_ROOT%{_sysconfdir}/suvad-server.conf
 
 %if "0%{dist}" == "0.v6"
-cp config/init.d/%{vendor_sysvinit} $RPM_BUILD_ROOT%{_sysconfdir}/init.d/suvad
-cp config/init.d/%{vendor_sysvinit}-server $RPM_BUILD_ROOT%{_sysconfdir}/init.d/suvad-server
+cp deploy/init.d/suvad $RPM_BUILD_ROOT%{_sysconfdir}/init.d/suvad
+cp deploy/init.d/suvad-server $RPM_BUILD_ROOT%{_sysconfdir}/init.d/suvad-server
 %else
-install -D -m 644 config/systemd/suva.service %{buildroot}/%{_unitdir}/suva.service
-install -D -m 644 config/tmpfiles.d/suva.conf %{buildroot}/%{_tmpfilesdir}/suva.conf
+install -D -m 644 deploy/tmpfiles.d/suvad.conf %{buildroot}/%{_tmpfilesdir}/suvad.conf
+install -D -m 644 deploy/systemd/suvad.service %{buildroot}/%{_unitdir}/suvad.service
+install -D -m 644 deploy/systemd/suvad-server.service %{buildroot}/%{_unitdir}/suvad-server.service
 %endif
+rm -f %{buildroot}/%{_libdir}/*.a
+rm -f %{buildroot}/%{_libdir}/*.la
 
 # Add suva system user
-%pre sdn
+%pre client
 /usr/sbin/useradd -M -c "Suva" -s /sbin/nologin -d %{_var}/lib/suva -r suva 2> /dev/null || :
 
 %pre server
-/usr/sbin/useradd -M -c "Suva" -s /sbin/nologin -d %{_var}/lib/suva -r suva 2> /dev/null || :
-
-%pre client
 /usr/sbin/useradd -M -c "Suva" -s /sbin/nologin -d %{_var}/lib/suva -r suva 2> /dev/null || :
 
 # Post install
@@ -134,24 +121,40 @@ fi
 /sbin/chkconfig --add suvad >/dev/null 2>&1 || :
 /sbin/service suvad condrestart >/dev/null 2>&1 || :
 %else
-/sbin/chkconfig --add suva >/dev/null 2>&1 || :
-/usr/bin/systemctl enable suva.service -q
-/usr/bin/systemctl reload-or-restart suva.service -q
+/sbin/chkconfig --add suvad >/dev/null 2>&1 || :
+/usr/bin/systemctl enable suvad.service -q
+/usr/bin/systemctl reload-or-restart suvad.service -q
+%endif
+
+%post server
+/sbin/ldconfig
+
+%if "0%{dist}" != "0.v6"
+/sbin/chkconfig --add suvad >/dev/null 2>&1 || :
+/usr/bin/systemctl enable suvad-server.service -q
+/usr/bin/systemctl reload-or-restart suvad-server.service -q
 %endif
 
 # Pre un-install
-%preun
+%preun client
 %if "0%{dist}" == "0.v6"
 if [ "$1" = 0 ]; then
     /sbin/chkconfig --del suvad
 fi
 %else
 if [ "$1" = 0 ]; then
-    /sbin/chkconfig --del suva
-    /usr/bin/systemctl stop suva.service -q
-    /usr/bin/systemctl disable suva.service -q
+    /sbin/chkconfig --del suvad
+    /usr/bin/systemctl stop suvad.service -q
+    /usr/bin/systemctl disable suvad.service -q
 fi
 %endif
+
+%preun server
+if [ "$1" = 0 ]; then
+    /sbin/chkconfig --del suvad-server
+    /usr/bin/systemctl stop suvad.-serverservice -q
+    /usr/bin/systemctl disable suvad.-serverservice -q
+fi
 
 # Post un-install
 %postun
@@ -160,32 +163,6 @@ fi
 # Clean-up
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
-
-# SDN files
-%files sdn
-%defattr(-,root,root)
-%attr(0755,suva,suva) %{_var}/run/suvad
-%dir %attr(0750,suva,suva) %{_var}/lib/suva
-%dir %attr(0750,suva,suva) %{_var}/lib/suva/clearcenter.com
-%{_libdir}/libscl.so
-%{_libdir}/libscl.so.0
-%{_libdir}/libscl.so.0.0.0
-%{_libdir}/libscl.a
-%{_libdir}/libscl.la
-%{_libdir}/libisfd.so
-%{_libdir}/libisfd.so.0
-%{_libdir}/libisfd.so.0.0.0
-%{_libdir}/libisfd.a
-%{_libdir}/libisfd.la
-%attr(0755,root,root) %{_bindir}/mkrsa.sh
-%attr(0755,root,root) %{_bindir}/mkhost.sh
-%attr(0755,root,root) %{_bindir}/setdev.sh
-%attr(0755,root,root) %{_sbindir}/suvad
-%attr(0755,root,root) %{_sbindir}/suvad-server
-%if "0%{dist}" == "0.v6"
-%attr(0755,root,root) %{_sysconfdir}/init.d/suvad-server
-%endif
-#%config(noreplace) %attr(0600,suva,suva) %{_sysconfdir}/suvad.conf
 
 # Client files
 %files client
@@ -200,8 +177,8 @@ fi
 %if "0%{dist}" == "0.v6"
 %attr(0755,root,root) %{_sysconfdir}/init.d/suvad
 %else
-%attr(0644,root,root) %{_unitdir}/suva.service
-%attr(0644,root,root) %{_tmpfilesdir}/suva.conf
+%attr(0644,root,root) %{_unitdir}/suvad.service
+%attr(0644,root,root) %{_tmpfilesdir}/suvad.conf
 %endif
 %config(noreplace) %attr(0600,suva,suva) %{_sysconfdir}/suvad.conf
 
@@ -211,20 +188,15 @@ fi
 %attr(0755,suva,suva) %{_var}/run/suvad
 %dir %attr(0755,suva,suva) %{_var}/lib/suva
 %dir %attr(0750,suva,suva) %{_var}/lib/suva/clearcenter.com
-%{_libdir}/libscl.so
-%{_libdir}/libscl.so.0
-%{_libdir}/libscl.so.0.0.0
-%{_libdir}/libscl.a
-%{_libdir}/libscl.la
-%{_libdir}/libisfd.so
-%{_libdir}/libisfd.so.0
-%{_libdir}/libisfd.so.0.0.0
-%{_libdir}/libisfd.a
-%{_libdir}/libisfd.la
+%{_libdir}/libscl.so*
+%{_libdir}/libisfd.so*
 %attr(0755,root,root) %{_bindir}/mkrsa.sh
 %attr(0755,root,root) %{_sbindir}/suvad-server
-#%attr(0755,root,root) %{_sysconfdir}/init.d/suvad-server
-#%config(noreplace) %attr(0600,suva,suva) %{_sysconfdir}/suvad.conf
+%if "0%{dist}" != "0.v6"
+%attr(0644,root,root) %{_unitdir}/suvad-server.service
+%attr(0644,root,root) %{_tmpfilesdir}/suvad.conf
+%endif
+%config(noreplace) %attr(0600,suva,suva) %{_sysconfdir}/suvad-server.conf
 
 # Developer files
 %files devel
