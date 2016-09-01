@@ -394,7 +394,7 @@ svClient::~svClient()
 
 void svClient::Start(void)
 {
-    svConfOrganization *conf_org;
+    svConfOrganization *conf_org = NULL;
 
     if (key_server_test_org.size() == 0) {
         CreateSockets();
