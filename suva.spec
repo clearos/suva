@@ -2,7 +2,7 @@
 
 Name: suva
 Version: 3.2
-Release: 1%{dist}
+Release: 2%{dist}
 Vendor: ClearFoundation
 Group: System Environment/Daemons
 License: GPL

@@ -438,8 +438,11 @@ void svClient::Start(void)
                     KeyPollResult((svEventKeyPollResult *)event);
                 else {
                     svEventKeyPollResult *event_result = (svEventKeyPollResult *)event;
-                    if (event_result->GetPercent() < conf_org->GetKeyPollThreshold())
+                    if (event_result->GetPercent() < conf_org->GetKeyPollThreshold()) {
+                        svLog("Key poll test failed: %s",
+                            key_server_test_org.c_str());
                         throw svExKeyPollTestFailure(key_server_test_org);
+                    }
 
                     svLog("Key poll test successful: %s",
                         key_server_test_org.c_str());
