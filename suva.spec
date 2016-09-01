@@ -1,8 +1,8 @@
 # Suva RPM spec
 
 Name: suva
-Version: 3.1
-Release: 17%{dist}
+Version: 3.2
+Release: 1%{dist}
 Vendor: ClearFoundation
 Group: System Environment/Daemons
 License: GPL
