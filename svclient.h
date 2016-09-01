@@ -83,14 +83,19 @@ class svConfClient : public svConf
 public:
     svConfClient(int argc, char *argv[]) :
         svConf(argc, argv) { Load(); };
+
     virtual void Usage(bool version = false);
-#ifdef __WIN32__
     virtual void ParseOptions(void);
-#endif
+
+    string GetKeyServerTestOrg(void) { return key_server_test_org; }
 
 protected:
+    string key_server_test_org;
+
+#ifdef __WIN32__
     void RegisterService(const char *name,
         const char *display_name, const char *description);
+#endif
 };
 
 class svClient : public svService
@@ -107,6 +112,8 @@ protected:
     map<string, svThreadKeyPoll *> key_poll;
     map<string, svPublicRSAKey *> public_key;
     map<string, map<string, svSession *> > pool_client;
+
+    string key_server_test_org;
 
     void CreateSessionConnect(svSocket *skt,
         svConfFrontDoor *sfd);

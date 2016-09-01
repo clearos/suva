@@ -90,8 +90,8 @@ svKeyPollResult::~svKeyPollResult()
     if (key) RSA_free(key);
 }
 
-svThreadKeyPoll::svThreadKeyPoll(const string &org)
-    : svThread("svThreadKeyPoll"), org(org), skt_count(0)
+svThreadKeyPoll::svThreadKeyPoll(const string &org, bool test_run)
+    : svThread("svThreadKeyPoll"), org(org), skt_count(0), test_run(test_run)
 {
     svConfOrganization *conf_org;
     conf_org = svService::GetConf()->GetOrganization(org);
@@ -105,6 +105,11 @@ svThreadKeyPoll::svThreadKeyPoll(const string &org)
             svSocket *skt_connect = svSocket::Create(*(*i));
             skt.push_back(skt_connect);
             skt_count++;
+            if (test_run) {
+                svLog("%s: %s: Connecting to: %s:%hu",
+                    name.c_str(), org.c_str(),
+                    (*i)->GetHost().c_str(), (*i)->GetPort());
+            }
         } catch (runtime_error &e) {
             svError("%s: Error creating socket: %s",
                 name.c_str(), e.what());
@@ -168,6 +173,7 @@ void *svThreadKeyPoll::Entry(void)
                 i++;
                 continue;
             }
+
             try {
                 (*i)->Connect();
                 if ((*i)->IsConnected()) {
@@ -175,12 +181,34 @@ void *svThreadKeyPoll::Entry(void)
                     skt_set.SelectForRead((*i));
                 }
             }
+            catch (svExSocketSyscall &e) {
+                ostringstream os;
+                os << name << ": " << (*i)->GetHostPath();
+                if ((*i)->GetType() == svST_INET)
+                    os << ":" << (*i)->GetPort();
+                os << ": " << strerror(e.errid);
+                svError(os.str().c_str());
+                delete (*i);
+                skt.erase(i);
+                break;
+            }
+            catch (svExSocketTimeout &e) {
+                ostringstream os;
+                os << name << ": " << (*i)->GetHostPath();
+                if ((*i)->GetType() == svST_INET)
+                    os << ":" << (*i)->GetPort();
+                os << ": " << "Connect time-out";
+                svError(os.str().c_str());
+                delete (*i);
+                skt.erase(i);
+                break;
+            }
             catch (runtime_error &e) {
                 ostringstream os;
                 os << name << ": " << (*i)->GetHostPath();
                 if ((*i)->GetType() == svST_INET)
                     os << ":" << (*i)->GetPort();
-                os << ": " << e.what() << endl;
+                os << ": " << e.what();
                 svError(os.str().c_str());
                 delete (*i);
                 skt.erase(i);
@@ -200,7 +228,7 @@ void *svThreadKeyPoll::Entry(void)
             rc = skt_set.Select(_SUVA_DEFAULT_DELAY * 5);
         } catch (runtime_error &e) {
             svEventServer::GetInstance()->Dispatch(
-                new svEventKeyPollResult(this, NULL, org));
+                new svEventKeyPollResult(this, NULL, org, NULL, 0));
             return NULL;
         }
 
@@ -250,7 +278,7 @@ void *svThreadKeyPoll::Entry(void)
     if (top_score == 0 || top_key == NULL) {
         if (top_key) RSA_free(top_key);
         svEventServer::GetInstance()->Dispatch(
-            new svEventKeyPollResult(this, NULL, org));
+            new svEventKeyPollResult(this, NULL, org, NULL, 0));
         return NULL;
     }
 
@@ -262,13 +290,13 @@ void *svThreadKeyPoll::Entry(void)
     if (percent < threshold) {
         RSA_free(top_key);
         svEventServer::GetInstance()->Dispatch(
-            new svEventKeyPollResult(this, NULL, org));
+            new svEventKeyPollResult(this, NULL, org, NULL, 0));
         return NULL;
     }
 
     //RSA_print_fp(stderr, top_key, 0);
     svEventServer::GetInstance()->Dispatch(
-        new svEventKeyPollResult(this, NULL, org, top_key));
+        new svEventKeyPollResult(this, NULL, org, top_key, percent));
     return NULL;
 }
 
@@ -290,7 +318,7 @@ void svThreadKeyPoll::BroadcastResult(svEventKeyPollResult *result)
         RSA *key = RSAPublicKey_dup(result->GetKey());
         svEventServer::GetInstance()->Dispatch(
             new svEventKeyPollResult(GetDefaultDest(), i->first,
-                result->GetOrganization(), key));
+                result->GetOrganization(), key, result->GetPercent()));
     }
 }
 

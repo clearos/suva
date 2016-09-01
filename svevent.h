@@ -201,17 +201,19 @@ class svEventKeyPollResult : public svEvent
 {
 public:
     svEventKeyPollResult(svEventClient *src, svEventClient *dst,
-        const string &org, RSA *key = NULL)
+        const string &org, RSA *key, uint32_t percent)
         : svEvent(svEVT_KEYPOLL_RESULT, src, dst),
-        org(org), key(key) { };
+        org(org), key(key), percent(percent) { };
     virtual svEvent *Clone(void) { return new svEventKeyPollResult(*this); };
 
     const string &GetOrganization(void) const { return org; };
     RSA *GetKey(void) { return key; };
+    uint32_t GetPercent(void) { return percent; };
 
 protected:
     string org;
     RSA *key;
+    uint32_t percent;
 };
 
 class svEventKeyRingRequest : public svEvent

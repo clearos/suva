@@ -1638,7 +1638,7 @@ void svConf::ParseCommonOptions(void)
         int32_t o = 0;
         if ((rc = getopt_long(argc, argv,
 #ifndef __WIN32__
-            "Vc:o:p:f:dh?", suvad_options, &o)) == -1) break;
+            "Vc:o:p:f:dk:h?", suvad_options, &o)) == -1) break;
 #else
             "Vc:o:p:f:dh?ru", suvad_options, &o)) == -1) break;
 #endif

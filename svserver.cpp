@@ -122,7 +122,11 @@ void svConfServer::Usage(bool version)
 }
 
 svServer::svServer(svConf *conf)
-    : svService("svServer", conf) { }
+    : svService("svServer", conf)
+{
+    svOutput::OpenSyslog(name.c_str(),
+        conf->GetLogFacility(), conf->GetDebug());
+}
 
 svServer::~svServer()
 {

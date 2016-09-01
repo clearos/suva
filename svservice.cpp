@@ -86,8 +86,6 @@ svService::svService(const string &name, svConf *conf)
     : svEventClient(name), thread_signal(NULL)
 {
     svService::conf = conf;
-    svOutput::OpenSyslog(name.c_str(),
-        conf->GetLogFacility(), conf->GetDebug());
     string log_file = conf->GetLogFile();
     if (log_file.size())
         svOutput::OpenLogFile(log_file);

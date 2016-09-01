@@ -45,6 +45,14 @@ public:
     virtual ~svExKeyPollNoKeyServers() throw() { };
 };
 
+class svExKeyPollTestFailure : public runtime_error
+{
+public:
+    explicit svExKeyPollTestFailure(const string &org)
+        : runtime_error(org) { };
+    virtual ~svExKeyPollTestFailure() throw() { };
+};
+
 class svKeyPollResult : public svObject
 {
 public:
@@ -72,7 +80,7 @@ protected:
 class svThreadKeyPoll : public svThread
 {
 public:
-    svThreadKeyPoll(const string &org);
+    svThreadKeyPoll(const string &org, bool test_run = false);
     virtual ~svThreadKeyPoll();
 
     virtual void *Entry(void);
@@ -91,6 +99,7 @@ protected:
     map<svEventClient *, svObject *> client;
     uint8_t pkt_buffer[_SUVA_MAX_PACKET_SIZE];
     vector<svKeyPollResult *> poll_result;
+    bool test_run;
 
     void AddPollResult(uint8_t *payload, size_t length);
 };

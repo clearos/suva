@@ -128,7 +128,7 @@ void svCrypto::Initialize(void)
         pthread_mutex_init(mutex_crypto[i], NULL);
     }
     CRYPTO_set_locking_callback(sv_crypto_lock);
-    svDebug("svCrypto: Initialized %d lock(s)\n", num_locks);
+    svDebug("svCrypto: Initialized %d lock(s)", num_locks);
 }
 
 void svCrypto::Uninitialize(void)

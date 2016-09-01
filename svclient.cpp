@@ -42,6 +42,7 @@
 #include <string.h>
 #include <errno.h>
 #include <signal.h>
+#include <getopt.h>
 #include <expat.h>
 #include <pthread.h>
 
@@ -135,14 +136,14 @@ int main(int argc, char *argv[])
         rc = 1;
     } catch (svExSocketSelect &e) {
         svError("Socket select: %s", e.what());
-#if 1
+    } catch (svExKeyPollTestFailure &e) {
+        rc = 1;
     } catch (runtime_error &e) {
         svError("Run-time exception: %s", e.what());
         rc = 1;
     } catch (exception &e) {
         svError("Uncaught exception: %s", e.what());
         rc = 1;
-#endif
     }
 
     if (client) delete client;
@@ -223,18 +224,42 @@ void svConfClient::Usage(bool version)
     throw svExConfUsageRequest();
 }
 
-#ifdef __WIN32__
-
 void svConfClient::ParseOptions(void)
 {
+    int32_t rc;
+    struct option suvad_options[] =
+    {
+        { "key-server-test", 1, 0, 'k' },
+        { NULL, 0, 0, 0 }
+    };
+
+    for (optind = 1;; ) {
+        int32_t o = 0;
+        if ((rc = getopt_long(argc, argv,
+#ifndef __WIN32__
+            "Vc:o:p:f:dk:h?", suvad_options, &o)) == -1) break;
+#else
+            "Vc:o:p:f:dh?ru", suvad_options, &o)) == -1) break;
+#endif
+        switch (rc) {
+        case 'k':
+            key_server_test_org = optarg;
+            break;
+        }
+    }
+
     ParseCommonOptions();
+
+#ifdef __WIN32__
     if (service_register) {
         RegisterService("Suva", "Suva", "Suva Secure Services");
         svLog("Registered Windows service.");
         throw svExConfServiceRegisterRequest();
     }
+#endif
 }
 
+#ifdef __WIN32__
 void svConfClient::RegisterService(const char *name,
     const char *display_name, const char *description)
 {
@@ -340,7 +365,16 @@ void svConfClient::RegisterService(const char *name,
 #endif
 
 svClient::svClient(svConf *conf)
-    : svService("svClient", conf) { }
+    : svService("svClient", conf)
+{
+    svConfClient *conf_client = (svConfClient *)conf;
+    key_server_test_org = conf_client->GetKeyServerTestOrg();
+
+    if (key_server_test_org.size() == 0) {
+        svOutput::OpenSyslog(name.c_str(),
+            conf->GetLogFacility(), conf->GetDebug());
+    }
+}
 
 svClient::~svClient()
 {
@@ -360,13 +394,34 @@ svClient::~svClient()
 
 void svClient::Start(void)
 {
-    CreateSockets();
-    SwitchUserGroup();
-    Daemonize();
-    SaveProcessId();
+    svConfOrganization *conf_org;
+
+    if (key_server_test_org.size() == 0) {
+        CreateSockets();
+        SwitchUserGroup();
+        Daemonize();
+        SaveProcessId();
+        CreatePoolClientThreads();
+        CreateVpnClientThreads();
+    }
+    else {
+        conf_org = svService::GetConf()->GetOrganization(key_server_test_org);
+        if (!conf_org) {
+            svError("Invalid organization: %s", key_server_test_org.c_str());
+            throw svExKeyPollInvalidOrg(key_server_test_org);
+        }
+
+        vector<svConfSocket *> key_server = conf_org->GetRSAKeyServers();
+        if (!key_server.size()) {
+            svError("No key servers defined for organization: %s",
+                key_server_test_org.c_str());
+            throw svExKeyPollNoKeyServers(key_server_test_org);
+        }
+
+        KeyPollRequest(new svEventKeyPollRequest(this, key_server_test_org));
+    }
+
     StartSignalHandler();
-    CreatePoolClientThreads();
-    CreateVpnClientThreads();
 
     svEvent *event;
     for ( ;; ) {
@@ -379,7 +434,17 @@ void svClient::Start(void)
                 KeyPollRequest((svEventKeyPollRequest *)event);
                 break;
             case svEVT_KEYPOLL_RESULT:
-                KeyPollResult((svEventKeyPollResult *)event);
+                if (key_server_test_org.size() == 0)
+                    KeyPollResult((svEventKeyPollResult *)event);
+                else {
+                    svEventKeyPollResult *event_result = (svEventKeyPollResult *)event;
+                    if (event_result->GetPercent() < conf_org->GetKeyPollThreshold())
+                        throw svExKeyPollTestFailure(key_server_test_org);
+
+                    svLog("Key poll test successful: %s",
+                        key_server_test_org.c_str());
+                    return;
+                }
                 break;
             case svEVT_POOLCLIENT_DELETE:
                 PoolClientDelete((svEventPoolClientDelete *)event);
@@ -485,7 +550,7 @@ void svClient::KeyPollRequest(svEventKeyPollRequest *request)
         RSA *key = RSAPublicKey_dup(pki->second->GetKey());
         svEventServer::GetInstance()->Dispatch(
             new svEventKeyPollResult(this,
-                request->GetSource(), pki->first, key));
+                request->GetSource(), pki->first, key, 0));
         return;
     }
 
@@ -494,7 +559,7 @@ void svClient::KeyPollRequest(svEventKeyPollRequest *request)
     if (i == key_poll.end()) {
         try {
             svThreadKeyPoll *thread = new svThreadKeyPoll(
-                request->GetOrganization());
+                request->GetOrganization(), (key_server_test_org.size() > 0));
             thread->SetDefaultDest(this);
             thread->Start();
             key_poll[request->GetOrganization()] = thread;
@@ -505,7 +570,7 @@ void svClient::KeyPollRequest(svEventKeyPollRequest *request)
             svEventServer::GetInstance()->Dispatch(
                 new svEventKeyPollResult(this,
                     request->GetSource(),
-                    request->GetOrganization(), NULL));
+                    request->GetOrganization(), NULL, 0));
             return;
         } catch (svExKeyPollNoKeyServers &e) {
             svError("%s: No key servers to poll: %s",
@@ -513,7 +578,7 @@ void svClient::KeyPollRequest(svEventKeyPollRequest *request)
             svEventServer::GetInstance()->Dispatch(
                 new svEventKeyPollResult(this,
                     request->GetSource(),
-                    request->GetOrganization(), NULL));
+                    request->GetOrganization(), NULL, 0));
             return;
         }
     }
