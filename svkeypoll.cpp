@@ -177,6 +177,11 @@ void *svThreadKeyPoll::Entry(void)
             try {
                 (*i)->Connect();
                 if ((*i)->IsConnected()) {
+                    if (test_run) {
+                        svLog("%s: %s: Connected, sending request to: %s:%hu",
+                            name.c_str(), org.c_str(),
+                            (*i)->GetHostPath().c_str(), (*i)->GetPort());
+                    }
                     (*i)->WritePacket(pkt_key_poll);
                     skt_set.SelectForRead((*i));
                 }
@@ -246,6 +251,11 @@ void *svThreadKeyPoll::Entry(void)
             }
             svPacket pkt(pkt_buffer);
             try {
+                if (test_run) {
+                    svLog("%s: %s: Reading reply from: %s:%hu",
+                        name.c_str(), org.c_str(),
+                        (*i)->GetHostPath().c_str(), (*i)->GetPort());
+                }
                 (*i)->ReadPacket(pkt, _SUVA_MAX_PAYLOAD);
                 if (pkt.GetId() == PKT_ID_AUTH &&
                     pkt.GetArg1() == PKT_ARG_AUTH_KEYPOLL) {
@@ -253,8 +263,8 @@ void *svThreadKeyPoll::Entry(void)
                         pkt.GetPayload(), pkt.GetPayloadLength());
                 }
             } catch (runtime_error &e) {
-                svError("%s: Error reading from key server: %s:%d: %s",
-                    name.c_str(), (*i)->GetHostPath().c_str(),
+                svError("%s: %s: Error reading from key server: %s:%d: %s",
+                    name.c_str(), org.c_str(), (*i)->GetHostPath().c_str(),
                     (*i)->GetPort(), e.what());
             }
             skt_set.RemoveForRead((*i));
